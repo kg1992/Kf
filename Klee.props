@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <SDL>D:\cpplibs\SDL\SDL2-2.0.9\</SDL>
+    <SDL_IMAGE>D:\cpplibs\SDL\SDL2_image-2.0.4\</SDL_IMAGE>
+    <SDL_TTF>D:\cpplibs\SDL\SDL2_ttf-2.0.15\</SDL_TTF>
+    <SDL_MIXER>D:\cpplibs\SDL\SDL2_mixer-2.0.4\</SDL_MIXER>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="SDL">
+      <Value>$(SDL)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SDL_IMAGE">
+      <Value>$(SDL_IMAGE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SDL_TTF">
+      <Value>$(SDL_TTF)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SDL_MIXER">
+      <Value>$(SDL_MIXER)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
