@@ -128,6 +128,7 @@ private:
     unsigned int consecutiveMoveCount = 0;
     unsigned int gravityTick = 0;
     unsigned int lockDelayTick = 0;
+    int lastShift = 0;
 
     PlayState playState = PS_Ready;
     PlayField playField;

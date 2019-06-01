@@ -182,35 +182,26 @@ TetrisGame::DropResult TetrisGame::OnDrop()
 
     if (lineClearCount)
     {
+        int dy = 0;
         // Rearrange cleared lines
-        for (int y = 1; y < PlayFieldHeight; ++y)
+        for (int y = 0; y < PlayFieldHeight; ++y)
         {
-            int dy = 0;
             bool isClearedLine = false;
-            for (int i = 0; i < lineClearCount; ++i)
+            if (clearedLines[dy] == y)
             {
-                if (clearedLines[i] == y)
-                {
-                    isClearedLine = true;
-                    break;
-                }
-                if (clearedLines[i] < y)
-                {
-                    ++dy;
-                }
+                ++dy;
+                isClearedLine = true;
             }
-            if (isClearedLine && y == PlayFieldHeight - 1)
-            {
-                for (int x = 0; x < PlayFieldWidth; ++x)
-                {
-                    playField.Set(x, y, Block::B_Empty);
-                }
-            }
-            if (!isClearedLine)
+            else if( dy > 0 )
             {
                 for (int x = 0; x < PlayFieldWidth; ++x)
                 {
                     playField.Set(x, y - dy, playField.Get(x, y));
+                }
+
+                if (PlayFieldHeight - y <= dy)
+                {
+                    playField.ClearRow(y);
                 }
             }
         }
@@ -315,7 +306,13 @@ void TetrisGame::Shift(int dx)
 {
     if (dx != 0)
     {
-        if (consecutiveMoveCount == 0 || SDL_GetTicks() - repeatDelayTick > RepeatDelay)
+        if (lastShift * dx < 0)
+        {
+            consecutiveMoveCount = 0;
+            repeatDelayTick = SDL_GetTicks();
+        }
+        lastShift = dx;
+        if (consecutiveMoveCount == 0 || (SDL_GetTicks() - repeatDelayTick > RepeatDelay))
         {
             if (SDL_GetTicks() - moveDelayTick > MoveDelay)
             {

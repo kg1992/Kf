@@ -24,7 +24,7 @@ Block TetriminoTypeToBlock(TetriminoType type);
 struct PlayFieldDrawMetrics
 {
     int pxOriginX;
-    int pxOrignY;
+    int pxOriginY;
     int pxBlockSize = 16;
 };
 
@@ -64,6 +64,8 @@ public:
     int GetWidth();
 
     int GetHeight();
+
+    void ClearRow(int y);
 
 private:
     int m_width, m_height;

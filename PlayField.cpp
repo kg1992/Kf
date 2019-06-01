@@ -160,3 +160,11 @@ int PlayField::GetHeight()
 {
     return m_height;
 }
+
+void PlayField::ClearRow(int y)
+{
+    for (int x = 0; x < m_width; ++x)
+    {
+        Set(x, y, Block::B_Empty);
+    }
+}
