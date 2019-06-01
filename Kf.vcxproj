@@ -146,11 +146,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="KickTable.cpp" />
+    <ClCompile Include="LineClearInfoTable.cpp" />
+    <ClCompile Include="PlayField.cpp" />
+    <ClCompile Include="Randomizer.cpp" />
+    <ClCompile Include="Tetrimino.cpp" />
+    <ClCompile Include="TetrisGame.cpp" />
+    <ClCompile Include="TetrisRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Background.h" />
+    <ClInclude Include="KickTable.h" />
+    <ClInclude Include="LineClearInfoTable.h" />
+    <ClInclude Include="PlayField.h" />
+    <ClInclude Include="Randomizer.h" />
+    <ClInclude Include="ScoreKeeper.h" />
+    <ClInclude Include="Tetrimino.h" />
+    <ClInclude Include="TetrisRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="PresetBoards.h" />
     <ClInclude Include="TetrisGame.h" />

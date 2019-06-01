@@ -24,8 +24,8 @@
 
 #include "PresetBoards.h"
 #include "Texture.h"   
-#include "Background.h"
 #include "TetrisGame.h"
+#include "TetrisRenderer.h"
 
 namespace filesystem = std::experimental::filesystem;
 
@@ -54,234 +54,11 @@ bool IsWriteEnabled()
 const SDL_Color ColorWhite = { 0xff, 0xff, 0xff };
 const SDL_Color ColorBlack = { 0x00, 0x00, 0x00 };
 
-enum PivotPoint {
-    P_Center,
-    P_Top,
-    P_TopRight,
-    P_Right,
-    P_BottomRight,
-    P_Bottom,
-    P_LeftBottom,
-    P_Left,
-    P_LeftTop,
-};
-
-class MinoRenderer
-{
-public:
-    enum { Step = PlayFieldMetric::PxBlockSize };
-
-    MinoRenderer(SDL_Renderer* pRenderer)
-        : m_minoTextureSlots{
-            {0,Step * 2,Step,Step}, // Empty,
-            {Step,0,Step,Step},// B_Red,
-            {Step,Step,Step,Step},// B_Green,
-            {0,Step,Step,Step},// B_Blue,
-            {Step * 2,0,Step,Step},// B_Cyan,
-            {Step * 2,Step,Step,Step},// B_Magenta,
-            {Step * 3,0,Step,Step},// B_Yellow,
-            {Step * 3,Step,Step,Step}// B_Orange,
-    }
-        , m_pRenderer(pRenderer)
-        , m_minoTexture(pRenderer)
-    {
-    }
-
-    void Load()
-    {
-        m_minoTexture.LoadFromFile("MInos.png");
-    }
-
-    void DrawMino(Block block, SDL_Rect* pRect)
-    {
-        m_minoTexture.renderPart(&m_minoTextureSlots[block], pRect);
-    }
-
-    void DrawGhostMino(Block block, SDL_Rect* pRect)
-    {
-        const Uint8 GhostMinoAlpha = 0x88;
-        m_minoTexture.SetAlpha(GhostMinoAlpha);
-        m_minoTexture.renderPart(&m_minoTextureSlots[block], pRect);
-        m_minoTexture.SetAlpha(SDL_ALPHA_OPAQUE);
-    }
-
-    void DrawMinoOpaque(Block block, SDL_Rect* pRect)
-    {
-        switch (block)
-        {
-        case B_Red:       SDL_SetRenderDrawColor(m_pRenderer, 0xff, 0x00, 0x00, SDL_ALPHA_OPAQUE); break;
-        case B_Green:     SDL_SetRenderDrawColor(m_pRenderer, 0x00, 0xff, 0x00, SDL_ALPHA_OPAQUE); break;
-        case B_Blue:      SDL_SetRenderDrawColor(m_pRenderer, 0x00, 0x00, 0xff, SDL_ALPHA_OPAQUE); break;
-        case B_Cyan:      SDL_SetRenderDrawColor(m_pRenderer, 0x00, 0xff, 0xff, SDL_ALPHA_OPAQUE); break;
-        case B_Magenta:   SDL_SetRenderDrawColor(m_pRenderer, 0xff, 0x00, 0xff, SDL_ALPHA_OPAQUE); break;
-        case B_Yellow:    SDL_SetRenderDrawColor(m_pRenderer, 0xff, 0xff, 0x00, SDL_ALPHA_OPAQUE); break;
-        case B_Orange:    SDL_SetRenderDrawColor(m_pRenderer, 0xff, 0xa5, 0x00, SDL_ALPHA_OPAQUE); break;
-        }
-        SDL_RenderFillRect(m_pRenderer, pRect);
-    }
-
-    void Free()
-    {
-        m_minoTexture.Free();
-    }
-
-    SDL_Renderer* GetSDLRenderer()
-    {
-        return m_pRenderer;
-    }
-
-
-private:
-    SDL_Rect m_minoTextureSlots[Block::B_End];
-    SDL_Renderer* const m_pRenderer;
-    Texture m_minoTexture;
-};
-
-class TetrisRenderer
-{
-public:
-    TetrisRenderer(MinoRenderer& minoRenderer, int pivotX, int pivotY)
-        : minoRenderer(minoRenderer)
-        , pivotX(pivotX)
-        , pivotY(pivotY)
-    {
-        
-    }
-
-    void DrawTetrimino(Tetrimino& tm, bool ghost = false, bool fillBackground = false)
-    {
-        const int* pattern = TetriminoPatterns[tm.type][tm.orientation];
-        for (int i = 0; i < PatternSize; ++i)
-        {
-            int mx, my;
-            MinoPatternIndexToXY(tm, i, mx, my);
-            SDL_Rect rect = MakeRect(mx, my);
-            if (pattern[i])
-            {
-                if (!ghost)
-                    minoRenderer.DrawMino(tm.block, &rect);
-                else
-                    minoRenderer.DrawGhostMino(tm.block, &rect);
-            }
-            else if (fillBackground)
-            {
-                minoRenderer.DrawMino(Block::Empty, &rect);
-            }
-        }
-    }
-
-    void DrawPlayField(TetrisGame& game)
-    {
-        SDL_Renderer* pRenderer = minoRenderer.GetSDLRenderer();
-        // Draw playfield boundary
-        SDL_Rect rect = {
-            pivotX,
-            pivotY - Height * PxBlockSize,
-            PlayFieldMetric::Width * PlayFieldMetric::PxBlockSize,
-            PlayFieldMetric::Height * PlayFieldMetric::PxBlockSize,
-        };
-        SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-        SDL_RenderDrawRect(pRenderer, &rect);
-
-        SDL_SetRenderDrawColor(pRenderer, 0x00, 0x00, 0x00, SDL_ALPHA_OPAQUE);
-        int xbeg = pivotX;
-        int xend = pivotX + PlayFieldMetric::Width * PlayFieldMetric::PxBlockSize - 1;
-        int ybeg = pivotY - 1;
-        int yend = ybeg - PlayFieldMetric::Height * PlayFieldMetric::PxBlockSize;
-        for (int i = 1; i < PlayFieldMetric::Width; ++i)
-        {
-            int x = pivotX + PlayFieldMetric::PxBlockSize * i;
-            SDL_RenderDrawLine(pRenderer, x, ybeg, x, yend);
-        }
-        for (int i = 1; i < PlayFieldMetric::Height; ++i)
-        {
-            int y = pivotY - PlayFieldMetric::PxBlockSize * i;
-            SDL_RenderDrawLine(pRenderer, xbeg, y, xend, y);
-        }
-
-        for (int x = 0; x < PlayFieldMetric::Width; ++x)
-        {
-            for (int y = 0; y < PlayFieldMetric::Height; ++y)
-            {
-                Block block = game.GetPlayField().Get(x, y);
-                SDL_Rect rect = MakeRect(x, y);
-                SDL_Rect minoRect = { 0,0,16,16 };
-                minoRenderer.DrawMino(block, &rect);
-            }
-        }
-
-        if (game.GetPlayState() == PS_Control)
-        {
-            DrawTetrimino(game.GetActiveTetrimino());
-        }
-
-        // Draw ghost
-        if (game.GetPlayState() == PS_Control)
-        {
-            const Tetrimino& tmActive = game.GetActiveTetrimino();
-            Tetrimino tmGhost = tmActive;
-            while (!game.GetPlayField().CheckDownContact(tmGhost))
-            {
-                --tmGhost.y;
-            }
-            if (tmGhost.y > tmActive.y)
-            {
-                tmGhost.y = tmActive.y;
-            }
-            DrawTetrimino(tmGhost, true);
-        }
-
-        // Draw next tetriminos
-        const int MaximumVisibleQueueSize = 5;
-        for (int i = 0; i < MaximumVisibleQueueSize; ++i)
-        {
-            TetriminoType tt = game.GetRandomizer().Peek(i);
-            if (tt != TT_End)
-            {
-                Tetrimino tm = MakeTetrimino(tt);
-                tm.x = 12;
-                tm.y = 22 - i * 5;
-                DrawTetrimino(tm, false, true);
-            }
-        }
-
-        // Draw hold tetrimino
-        TetriminoType hold = game.GetHold();
-        if (hold != TT_End)
-        {
-            Tetrimino tm = MakeTetrimino(hold);
-            tm.x = -5;
-            tm.y = 22;
-            DrawTetrimino(tm, false, true);
-        }
-    }
-
-    void SetPivotX(int x) {
-        pivotX = x;
-    }
-
-    void SetPivotY(int y) {
-        pivotY = y;
-    }
-
-private:
-    MinoRenderer& minoRenderer;
-    int pivotX, pivotY;
-
-    SDL_Rect MakeRect(int x, int y)
-    {
-        SDL_Rect rect;
-        rect.x = pivotX + x * PxBlockSize;
-        rect.y = pivotY - (y + 1) * PxBlockSize;
-        rect.h = rect.w = PxBlockSize;
-        return rect;
-    }
-};
-
 enum GameState
 {
     GS_MainMenu,
     GS_Sprint,
+    GS_ShowMinos,
     GS_Infinite,
 };
 
@@ -319,7 +96,7 @@ public:
         , mTargetGetter(fpTargetGetter)
         
     {
-        mTexture.LoadFromRenderedText(std::to_string(initialValue), g_pFont, ColorWhite);
+        mTexture.LoadFromRenderedText(std::to_string(initialValue), g_pFont, ColorBlack);
         SetMinHeight(minHeight);
     }
 
@@ -328,11 +105,11 @@ public:
         T val = mTargetGetter();
         if (mLast != val)
         {
-            mTexture.LoadFromRenderedText(std::to_string(val), g_pFont, ColorWhite);
+            mTexture.LoadFromRenderedText(std::to_string(val), g_pFont, ColorBlack);
             if (OnChange) OnChange(mLast, val);
             mLast = val;
         }
-        mTexture.render(GetX(), GetY());
+        mTexture.Render(GetX(), GetY());
     }
 
     int GetWidth() override
@@ -379,7 +156,7 @@ public:
 
     void Render() override
     {
-        mTexture.render(GetX(), GetY());
+        mTexture.Render(GetX(), GetY());
     }
 
     int GetWidth() override
@@ -503,19 +280,19 @@ public:
 
         int cursorX = GetX();
         int cursorY = GetY();
-        mTexHour.render(cursorX, cursorY);
+        mTexHour.Render(cursorX, cursorY);
         cursorX += mTexHour.GetWidth();
-        mTexSep.render(cursorX, cursorY);
+        mTexSep.Render(cursorX, cursorY);
         cursorX += mTexSep.GetWidth();
-        mTexMin.render(cursorX, cursorY);
+        mTexMin.Render(cursorX, cursorY);
         cursorX += mTexMin.GetWidth();
-        mTexSep.render(cursorX, cursorY);
+        mTexSep.Render(cursorX, cursorY);
         cursorX += mTexSep.GetWidth();
-        mTexSec.render(cursorX, cursorY);
+        mTexSec.Render(cursorX, cursorY);
         cursorX += mTexSec.GetWidth();
-        mTexSep.render(cursorX, cursorY);
+        mTexSep.Render(cursorX, cursorY);
         cursorX += mTexSep.GetWidth();
-        mTexMsec.render(cursorX, cursorY);
+        mTexMsec.Render(cursorX, cursorY);
     }
 
 private:
@@ -589,7 +366,7 @@ int main(int argc, char** argv)
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     {
         printf("SDL could not be initialized!");
-        return -1;
+        return 1;
     }
 
     // The window we will be rendering to
@@ -597,18 +374,15 @@ int main(int argc, char** argv)
     if (!pWindow)
     {
         printf("SDL could not create window");
-        return -1;
+        return 1;
     }
-
-    // The surface contained by the window
-    SDL_Surface* pScreenSurface = SDL_GetWindowSurface(pWindow);
 
     // Create renderer for window
     SDL_Renderer* pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
     if (!pRenderer)
     {
-        printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-        return -1;
+        printf("Unable to create Renderer : %s\n", SDL_GetError());
+        return 1;
     }
 
     // Update the surface
@@ -619,32 +393,29 @@ int main(int argc, char** argv)
     if (!(IMG_Init(imgFlags) & imgFlags))
     {
         printf(" SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-        return -1;
+        return 1;
     }
 
     // Initialize SDL-ttf
     if (TTF_Init() == -1)
     {
         printf(" SDL_ttf could not initialize! SDL_ttf Error : %s\n", TTF_GetError());
-        return -1;
+        return 1;
     }
 
     // Initialize SDL_mixer
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
     {
         printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
-        return -1;
+        return 1;
     }
-
-    // Initialize background
-    Background background(pRenderer, "background.png");
 
     //Load music
     g_pMusic = Mix_LoadMUS("Tetris Official Theme song.mp3");
     if (g_pMusic == NULL)
     {
         printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());
-        return -1;
+        return 1;
     }
     
     g_pWavLevelup = Mix_LoadWAV("Levelup.wav");
@@ -655,19 +426,26 @@ int main(int argc, char** argv)
     if (g_pFont == nullptr)
     {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
-        return -1;
+        return 1;
     }
 
-    TetrisGame tetrisGame;
+    TetrisGame tetrisGame(10, 22);
+    PlayField& playField = tetrisGame.GetPlayField();
+    const int BlockSize = 16;
+    TetrisDesc desc
+    {
+        // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
+        (ScreenWidth - playField.GetWidth() * BlockSize) / 2, 
+        // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
+        500, 
+        BlockSize
+    };
 
     MinoRenderer minoRenderer(pRenderer);
     minoRenderer.Load();
 
-    // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
-    const int PlayFieldPivotX = (ScreenWidth - PlayFieldMetric::Width * PlayFieldMetric::PxBlockSize) / 2;
-    // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
-    const int PlayFieldPivotY = 500;
-    TetrisRenderer tetrisRenderer(minoRenderer, PlayFieldPivotX , PlayFieldPivotY);
+    
+    TetrisRenderer tetrisRenderer(minoRenderer);
 
     Mix_PlayMusic(g_pMusic, -1);
     Mix_PauseMusic();
@@ -686,7 +464,7 @@ int main(int argc, char** argv)
     infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "LEVEL", ColorBlack)));
     infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox<int>(pRenderer, 0, std::bind(&TetrisGame::GetLevel, &tetrisGame), 40)));
     infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "BONUS", ColorBlack)));
-    std::shared_ptr<UITextBox> bonusShow(new UITextBox(pRenderer, "", ColorWhite));
+    std::shared_ptr<UITextBox> bonusShow(new UITextBox(pRenderer, "", ColorBlack));
     bonusShow->SetMinHeight(40);
     infiniteUI.AddUI(bonusShow);
     infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "COMBO", ColorBlack)));
@@ -703,7 +481,7 @@ int main(int argc, char** argv)
     sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "SCORE", ColorBlack)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox<int>(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), 40)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "TIME", ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(pRenderer, std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorWhite, 40)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(pRenderer, std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorBlack, 40)));
 
     Texture readyShow(pRenderer);
     readyShow.LoadFromRenderedText("Press Space To Start", g_pFont, ColorBlack);
@@ -762,6 +540,14 @@ int main(int argc, char** argv)
                     }
                     break;
                 }
+                case SDLK_4:
+                {
+                    if (gameState == GS_MainMenu )
+                    {
+                        gameState = GS_ShowMinos;
+                    }
+                }
+                    break;
                 case SDLK_F5:
                 {
                     if (gameState == GS_Infinite)
@@ -864,7 +650,7 @@ int main(int argc, char** argv)
                 if (result.backToBack)
                     msg = "B2B ";
                 msg += lci.msg;
-                bonusShow->SetContent(msg, ColorWhite);
+                bonusShow->SetContent(msg, ColorBlack);
                 Mix_PlayChannel(-1, g_pWavExplosion, 0);
             }
             else
@@ -886,8 +672,8 @@ int main(int argc, char** argv)
         break;
         }
 
-        // Clear screen
-        background.Render(pRenderer);
+        SDL_SetRenderDrawColor(pRenderer, 0xF5, 0xF5, 0xDC, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(pRenderer);
 
         if (gameState == GS_MainMenu)
         {
@@ -895,38 +681,57 @@ int main(int argc, char** argv)
         }
         else if (gameState == GS_Infinite)
         {
-            tetrisRenderer.DrawPlayField(tetrisGame);
+            tetrisRenderer.DrawTetris(tetrisGame, desc);
 
             infiniteUI.Render();
 
             if (tetrisGame.GetPlayState() == PS_GameOver)
-                gameoverShow.render((ScreenWidth - gameoverShow.GetWidth()) / 2, (ScreenHeight - gameoverShow.GetHeight()) / 2);
+                gameoverShow.Render((ScreenWidth - gameoverShow.GetWidth()) / 2, (ScreenHeight - gameoverShow.GetHeight()) / 2);
             else if (tetrisGame.GetPlayState() == PS_Ready)
-                readyShow.render((ScreenWidth - readyShow.GetWidth()) / 2, (ScreenHeight - readyShow.GetHeight()) / 2);
+                readyShow.Render((ScreenWidth - readyShow.GetWidth()) / 2, (ScreenHeight - readyShow.GetHeight()) / 2);
         }
         else if (gameState == GS_Sprint)
         {
-            tetrisRenderer.DrawPlayField(tetrisGame);
+            tetrisRenderer.DrawTetris(tetrisGame, desc);
 
             sprintUI.Render();
 
             if (tetrisGame.GetPlayState() == PS_GameOver) {
                 sprintTimer.Stop();
-                gameoverShow.render((ScreenWidth - gameoverShow.GetWidth()) / 2, (ScreenHeight - gameoverShow.GetHeight()) / 2);
+                gameoverShow.Render((ScreenWidth - gameoverShow.GetWidth()) / 2, (ScreenHeight - gameoverShow.GetHeight()) / 2);
             }
             else if (tetrisGame.GetPlayState() == PS_Ready)
-                readyShow.render((ScreenWidth - readyShow.GetWidth()) / 2, (ScreenHeight - readyShow.GetHeight()) / 2);
+                readyShow.Render((ScreenWidth - readyShow.GetWidth()) / 2, (ScreenHeight - readyShow.GetHeight()) / 2);
 
             if( tetrisGame.GetTotalClearedLines() >= 40 )
             {
                 sprintTimer.Stop();
-                sprintCompleteShow.render((ScreenWidth - sprintCompleteShow.GetWidth()) / 2, (ScreenHeight - sprintCompleteShow.GetHeight()) / 2);
+                sprintCompleteShow.Render((ScreenWidth - sprintCompleteShow.GetWidth()) / 2, (ScreenHeight - sprintCompleteShow.GetHeight()) / 2);
                 tetrisGame.Win();
+            }
+        }
+        else if (gameState == GS_ShowMinos)
+        {
+            TetriminoType tts[] = { TT_I, TT_O, TT_T, TT_J, TT_L, TT_S, TT_Z };
+            for (int i = 0; i < _countof(tts); ++i)
+            {
+                Tetrimino tm = MakeTetrimino(tts[i]);
+                tm.y = 28 - i * 4;
+                tetrisRenderer.DrawTetrimino(tm, desc, false, true);
+                tm.IncreaseOrientation();
+                tm.x += 4;
+                tetrisRenderer.DrawTetrimino(tm, desc, false, true);
+                tm.IncreaseOrientation();
+                tm.x += 4;
+                tetrisRenderer.DrawTetrimino(tm, desc, false, true);
+                tm.IncreaseOrientation();
+                tm.x += 4;
+                tetrisRenderer.DrawTetrimino(tm, desc, false, true);
             }
         }
 
         // Update screen
-        SDL_RenderPresent(pRenderer);
+        SDL_RenderPresent(pRenderer);;
 
         // 0.016 seconds = farme length
         const long long NsFrameLength = 16000000;
@@ -938,8 +743,6 @@ int main(int argc, char** argv)
 
         frameTick = frameClock.now();
     } // while(!quit)
-
-    background.Free();
 
     SDL_DestroyWindow(pWindow);
 

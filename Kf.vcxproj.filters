@@ -3,11 +3,24 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Randomizer.cpp" />
+    <ClCompile Include="KickTable.cpp" />
+    <ClCompile Include="TetrisGame.cpp" />
+    <ClCompile Include="Tetrimino.cpp" />
+    <ClCompile Include="LineClearInfoTable.cpp" />
+    <ClCompile Include="TetrisRenderer.cpp" />
+    <ClCompile Include="PlayField.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Background.h" />
     <ClInclude Include="PresetBoards.h" />
     <ClInclude Include="TetrisGame.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Tetrimino.h" />
+    <ClInclude Include="PlayField.h" />
+    <ClInclude Include="LineClearInfoTable.h" />
+    <ClInclude Include="ScoreKeeper.h" />
+    <ClInclude Include="Randomizer.h" />
+    <ClInclude Include="KickTable.h" />
+    <ClInclude Include="TetrisRenderer.h" />
   </ItemGroup>
 </Project>

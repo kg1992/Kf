@@ -106,25 +106,13 @@ void Texture::Free()
     }
 }
 
-void Texture::SetColor(Uint8 red, Uint8 green, Uint8 blue)
-{
-    //Modulate texture rgb
-    SDL_SetTextureColorMod(m_pTexture, red, green, blue);
-}
-
-void Texture::SetBlendMode(SDL_BlendMode blending)
-{
-    //Set blending function
-    SDL_SetTextureBlendMode(m_pTexture, blending);
-}
-
 void Texture::SetAlpha(Uint8 alpha)
 {
     //Modulate texture alpha
     SDL_SetTextureAlphaMod(m_pTexture, alpha);
 }
 
-void Texture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip)
+void Texture::Render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip)
 {
     //Set rendering space and render to screen
     SDL_Rect renderQuad = { x, y, m_width, m_height };
@@ -140,7 +128,7 @@ void Texture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* cent
     SDL_RenderCopyEx(m_pRenderer, m_pTexture, clip, &renderQuad, angle, center, flip);
 }
 
-void Texture::renderPart(SDL_Rect* src, SDL_Rect* dst)
+void Texture::RenderPart(SDL_Rect* src, SDL_Rect* dst)
 {
     SDL_RenderCopy(m_pRenderer, m_pTexture, src, dst);
 }
