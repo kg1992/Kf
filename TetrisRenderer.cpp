@@ -62,46 +62,114 @@ SDL_Renderer* MinoRenderer::GetSDLRenderer()
 
 
 TetrisRenderer::TetrisRenderer(MinoRenderer& minoRenderer)
-    : minoRenderer(minoRenderer)
+    : m_minoRenderer(minoRenderer)
 {
 
 }
 
-void TetrisRenderer::DrawTetrimino(Tetrimino& tm, const TetrisDesc& desc, bool ghost, bool fillBackground)
+void TetrisRenderer::DrawTetrimino(Tetrimino& tm, int height, bool ghost, bool fillBackground)
 {
-    const int* pattern = TetriminoPatterns[tm.type][tm.orientation];
+    int px, py, sx, sy;
+    MinoPatternIndexToXY(tm.x, tm.y, 0, px, py);
+    PlayFieldXyToScreenCoord(px, py, height, sx, sy);
+    DrawTetrimino(sx, sy, tm.type, tm.orientation, desc.pxBlockSize, ghost, fillBackground);
+}
+
+void TetrisRenderer::DrawTetrimino(int sx, int sy, TetriminoType type, Orientation orientation, int pxBlockSize, bool ghost, bool fillBackground)
+{
+    const int* pattern = TetriminoPatterns[type][orientation];
     for (int i = 0; i < PatternSize; ++i)
     {
-        int mx, my;
-        MinoPatternIndexToXY(tm.x, tm.y, i, mx, my);
-        SDL_Rect rect = MakeRect(mx, my, desc);
+        int px = i % 4;
+        int py = i / 4;
+        SDL_Rect rect =
+        {
+            sx + px * pxBlockSize,
+            sy + py * pxBlockSize,
+            pxBlockSize,
+            pxBlockSize
+        };
         if (pattern[i])
         {
             if (!ghost)
-                minoRenderer.DrawMino(TetriminoTypeToBlock(tm.type), &rect);
+                m_minoRenderer.DrawMino(TetriminoTypeToBlock(type), &rect);
             else
-                minoRenderer.DrawGhostMino(TetriminoTypeToBlock(tm.type), &rect);
+                m_minoRenderer.DrawGhostMino(TetriminoTypeToBlock(type), &rect);
         }
         else if (fillBackground)
         {
-            minoRenderer.DrawMino(Block::B_Empty, &rect);
+            m_minoRenderer.DrawMino(Block::B_Empty, &rect);
         }
     }
 }
 
-void TetrisRenderer::DrawTetris(TetrisGame& game, const TetrisDesc& desc)
+void TetrisRenderer::DrawTetris(TetrisGame& game)
 {
-    PlayField& playField = game.GetPlayField();
+    const int Height = std::min(game.GetPlayField().GetHeight(), desc.visibleLines);
+
+    // Draw playfield
+    DrawPlayField(game.GetPlayField());
+
+    // Draw active tetrimino
+    if (game.GetPlayState() == PS_Control)
+    {
+        DrawTetrimino(game.GetActiveTetrimino(), Height);
+    }
+
+    // Draw ghost piece
+    if (game.GetPlayState() == PS_Control)
+    {
+        const Tetrimino& tmActive = game.GetActiveTetrimino();
+        Tetrimino tmGhost = tmActive;
+        while (!game.GetPlayField().CheckDownContact(tmGhost))
+            --tmGhost.y;
+        if (tmGhost.y > tmActive.y)
+            tmGhost.y = tmActive.y;
+        DrawTetrimino(tmGhost, Height, true);
+    }
+    
+    // Draw next tetriminos
+    for (int i = 0; i < desc.nextCount; ++i)
+    {
+        TetriminoType tt = game.GetRandomizer().Peek(i);
+        if (tt != TT_End)
+        {
+            DrawTetrimino(desc.pxNextX[i], desc.pxNextY[i], tt, O_North, desc.pxBlockSize, false, true);
+        }
+    }
+
+    // Draw hold tetrimino
+    TetriminoType hold = game.GetHold();
+    if (hold != TT_End)
+    {
+        DrawTetrimino(desc.pxHoldX, desc.pxHoldY, hold, O_North, desc.pxBlockSize, false, true);
+    }
+}
+
+void TetrisRenderer::SetTetrisRenderDesc(const TetrisRenderDesc& desc)
+{
+    this->desc = desc;
+}
+
+const TetrisRenderDesc& TetrisRenderer::GetTetrisRenderDesc()
+{
+    return desc;
+}
+
+void TetrisRenderer::DrawPlayField(PlayField& playField)
+{
     const int Width = playField.GetWidth();
-    const int Height = playField.GetHeight();
-    SDL_Renderer* pRenderer = minoRenderer.GetSDLRenderer();
+    const int Height = std::min(desc.visibleLines, playField.GetHeight());
+    const int PxPlayFieldWidth = Width * desc.pxBlockSize + 2;
+    const int PxPlayFieldHeight = Height * desc.pxBlockSize + 2;
+    SDL_Renderer* pRenderer = m_minoRenderer.GetSDLRenderer();
 
     // Draw playfield boundary
     SDL_Rect rect = {
         desc.pxPlayFieldX,
-        desc.pxPlayFieldY - Height * desc.pxBlockSize,
-        Width * desc.pxBlockSize,
-        Height * desc.pxBlockSize,
+        desc.pxPlayFieldY,
+        PxPlayFieldWidth,
+        PxPlayFieldHeight,
     };
     SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderDrawRect(pRenderer, &rect);
@@ -110,64 +178,12 @@ void TetrisRenderer::DrawTetris(TetrisGame& game, const TetrisDesc& desc)
     {
         for (int y = 0; y < Height; ++y)
         {
-            Block block = game.GetPlayField().Get(x, y);
-            SDL_Rect rect = MakeRect(x, y, desc);
-            SDL_Rect minoRect = { 0,0,16,16 };
-            minoRenderer.DrawMino(block, &rect);
+            Block block = playField.Get(x, y);
+            int sx, sy;
+            PlayFieldXyToScreenCoord( x, y , Height, sx, sy);
+            SDL_Rect rect = { sx, sy, desc.pxBlockSize, desc.pxBlockSize };
+            m_minoRenderer.DrawMino(block, &rect);
         }
-    }
-
-    if (game.GetPlayState() == PS_Control)
-    {
-        DrawTetrimino(game.GetActiveTetrimino(), desc);
-    }
-
-    // Draw ghost
-    if (game.GetPlayState() == PS_Control)
-    {
-        const Tetrimino& tmActive = game.GetActiveTetrimino();
-        Tetrimino tmGhost = tmActive;
-        while (!game.GetPlayField().CheckDownContact(tmGhost))
-        {
-            --tmGhost.y;
-        }
-        if (tmGhost.y > tmActive.y)
-        {
-            tmGhost.y = tmActive.y;
-        }
-        DrawTetrimino(tmGhost, desc, true);
-    }
-
-    // Draw next tetriminos
-    const int MaximumVisibleQueueSize = 5;
-    for (int i = 0; i < MaximumVisibleQueueSize; ++i)
-    {
-        TetriminoType tt = game.GetRandomizer().Peek(i);
-        if (tt != TT_End)
-        {
-            Tetrimino tm = MakeTetrimino(tt);
-            tm.x = 12;
-            tm.y = 22 - i * 5;
-            DrawTetrimino(tm, desc, false, true);
-        }
-    }
-
-    // Draw hold tetrimino
-    TetriminoType hold = game.GetHold();
-    if (hold != TT_End)
-    {
-        Tetrimino tm = MakeTetrimino(hold);
-        tm.x = -5;
-        tm.y = 22;
-        DrawTetrimino(tm, desc, false, true);
     }
 }
 
-SDL_Rect TetrisRenderer::MakeRect(int x, int y, const TetrisDesc& desc)
-{
-    SDL_Rect rect;
-    rect.x = desc.pxPlayFieldX + x * desc.pxBlockSize;
-    rect.y = desc.pxPlayFieldY - (y + 1) * desc.pxBlockSize;
-    rect.h = rect.w = desc.pxBlockSize;
-    return rect;
-}

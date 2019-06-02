@@ -210,7 +210,7 @@ const int TetriminoPatterns[][O_End][PatternSize] =
 
 };
 
-void MinoPatternIndexToXY(int ox, int oy, int i, int& mx, int& my);
+void MinoPatternIndexToXY(int tx, int ty, int i, int& pfx, int& pfy);
 
 // Tetrimino structure for tetrimino that is controlled by the player
 struct Tetrimino

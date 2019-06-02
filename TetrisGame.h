@@ -5,12 +5,6 @@
 #ifndef TETRIS_GAME_H_
 #define TETRIS_GAME_H_
 
-#include <cinttypes>
-#include <iostream>
-#include <vector>
-#include <random>
-#include <sstream>
-#include <SDL.h>
 #include "Tetrimino.h"
 #include "PlayField.h"
 #include "ScoreKeeper.h"
@@ -27,12 +21,7 @@ enum PlayState : int
     PS_End,
 };
 
-// Tetrimino spawn location X in play field space
-const int SpawnX = 3;
-// Tetrimino spawn location Y in play field space
-const int SpawnY = 21;
-
-Tetrimino MakeTetrimino(TetriminoType type);
+Tetrimino MakeTetrimino(TetriminoType type, int x = 0, int y = 0);
 
 struct RotateResult
 {
@@ -44,7 +33,7 @@ struct RotateResult
 class TetrisGame
 {
 public:
-    TetrisGame(int playFieldWidth, int playFieldHeight);
+    TetrisGame(int playFieldWidth, int playFieldHeight, int spawnX, int spawnY);
 
     void Reset();
 

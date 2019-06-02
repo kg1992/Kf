@@ -429,23 +429,30 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    TetrisGame tetrisGame(10, 22);
+    TetrisGame tetrisGame(10, 22, 3, 19);
     PlayField& playField = tetrisGame.GetPlayField();
-    const int BlockSize = 16;
-    TetrisDesc desc
-    {
-        // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
-        (ScreenWidth - playField.GetWidth() * BlockSize) / 2, 
-        // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
-        500, 
-        BlockSize
-    };
 
     MinoRenderer minoRenderer(pRenderer);
     minoRenderer.Load();
 
+    const int BlockSize = 16;
+    TetrisRenderDesc desc = { 0 };
+    // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
+    desc.pxPlayFieldX = (ScreenWidth - playField.GetWidth() * BlockSize) / 2;
+    // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
+    desc.pxPlayFieldY = 100;
+    desc.pxHoldX = desc.pxPlayFieldX - 64 - 16;
+    desc.pxHoldY = desc.pxPlayFieldY;
+    desc.nextCount = 5;
+    for (int i = 0; i < 5; ++i)
+    {
+        desc.pxNextX[i] = desc.pxPlayFieldX + BlockSize * 11;
+        desc.pxNextY[i] = desc.pxPlayFieldY + i * 64;
+    }
     
+    desc.visibleLines = 20;
     TetrisRenderer tetrisRenderer(minoRenderer);
+    tetrisRenderer.SetTetrisRenderDesc(desc);
 
     Mix_PlayMusic(g_pMusic, -1);
     Mix_PauseMusic();
@@ -681,7 +688,7 @@ int main(int argc, char** argv)
         }
         else if (gameState == GS_Infinite)
         {
-            tetrisRenderer.DrawTetris(tetrisGame, desc);
+            tetrisRenderer.DrawTetris(tetrisGame);
 
             infiniteUI.Render();
 
@@ -692,7 +699,7 @@ int main(int argc, char** argv)
         }
         else if (gameState == GS_Sprint)
         {
-            tetrisRenderer.DrawTetris(tetrisGame, desc);
+            tetrisRenderer.DrawTetris(tetrisGame);
 
             sprintUI.Render();
 
@@ -717,16 +724,16 @@ int main(int argc, char** argv)
             {
                 Tetrimino tm = MakeTetrimino(tts[i]);
                 tm.y = 28 - i * 4;
-                tetrisRenderer.DrawTetrimino(tm, desc, false, true);
+                tetrisRenderer.DrawTetrimino(tm, false, true);
                 tm.IncreaseOrientation();
                 tm.x += 4;
-                tetrisRenderer.DrawTetrimino(tm, desc, false, true);
+                tetrisRenderer.DrawTetrimino(tm, false, true);
                 tm.IncreaseOrientation();
                 tm.x += 4;
-                tetrisRenderer.DrawTetrimino(tm, desc, false, true);
+                tetrisRenderer.DrawTetrimino(tm, false, true);
                 tm.IncreaseOrientation();
                 tm.x += 4;
-                tetrisRenderer.DrawTetrimino(tm, desc, false, true);
+                tetrisRenderer.DrawTetrimino(tm, false, true);
             }
         }
 

@@ -1,12 +1,12 @@
 #include "Tetrimino.h"
 
-void MinoPatternIndexToXY(int ox, int oy, int i, int& mx, int& my)
+void MinoPatternIndexToXY(int tx, int ty, int i, int& pfx, int& pfy)
 {
     const int BoundingBoxSideLength = 4;
     const int dy = i / BoundingBoxSideLength;
     const int dx = i % BoundingBoxSideLength;
-    mx = ox + dx;
-    my = oy - dy;
+    pfx = tx + dx;
+    pfy = ty - dy;
 }
 
 void Tetrimino::IncreaseOrientation()

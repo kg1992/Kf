@@ -42,11 +42,18 @@ private:
     Texture m_minoTexture;
 };
 
-struct TetrisDesc
+struct TetrisRenderDesc
 {
     int pxPlayFieldX;
     int pxPlayFieldY;
     int pxBlockSize = 16;
+    int visibleLines = 20;
+    enum { MAXIMUM_NEXT_COUNT = 0x20 };
+    int nextCount = MAXIMUM_NEXT_COUNT;
+    int pxNextX[MAXIMUM_NEXT_COUNT];
+    int pxNextY[MAXIMUM_NEXT_COUNT];
+    int pxHoldX;
+    int pxHoldY;
 };
 
 class TetrisRenderer
@@ -54,14 +61,23 @@ class TetrisRenderer
 public:
     TetrisRenderer(MinoRenderer& minoRenderer);
 
-    void DrawTetrimino(Tetrimino& tm, const TetrisDesc& desc, bool ghost = false, bool fillBackground = false);
+    void DrawTetrimino(Tetrimino& tm, int height, bool ghost = false, bool fillBackground = false);
 
-    void DrawTetris(TetrisGame& game, const TetrisDesc& desc);
+    void DrawTetrimino(int sx, int sy, TetriminoType type, Orientation orientation, int pxBlockSize, bool ghost = false, bool fillBackground = false);
+
+    void DrawTetris(TetrisGame& game);
+
+    void SetTetrisRenderDesc(const TetrisRenderDesc& desc);
+    
+    const TetrisRenderDesc& GetTetrisRenderDesc();
 
 private:
-    MinoRenderer& minoRenderer;
+    MinoRenderer& m_minoRenderer;
+    TetrisRenderDesc desc;
 
-    SDL_Rect MakeRect(int x, int y, const TetrisDesc& desc);
+    void DrawPlayField(PlayField& playField);
+
+    void PlayFieldXyToScreenCoord(int px, int py, int height, int& sx, int& sy);
 };
 
 #endif

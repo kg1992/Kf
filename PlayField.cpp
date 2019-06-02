@@ -16,9 +16,11 @@ Block TetriminoTypeToBlock(TetriminoType type)
     return Block::B_Empty;
 }
 
-PlayField::PlayField(int width, int height)
+PlayField::PlayField(int width, int height, int spawnX, int spawnY)
     : m_width(width)
     , m_height(height)
+    , m_spawnX(spawnX)
+    , m_spawnY(spawnY)
     , m_playField(width* height, B_Empty)
 {
 }
@@ -167,4 +169,14 @@ void PlayField::ClearRow(int y)
     {
         Set(x, y, Block::B_Empty);
     }
+}
+
+int PlayField::GetSpawnX()
+{
+    return m_spawnX;
+}
+
+int PlayField::GetSpawnY()
+{
+    return m_spawnY;
 }

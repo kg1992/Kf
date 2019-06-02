@@ -1,17 +1,18 @@
 #include "TetrisGame.h"
+#include <SDL.h>
 
-Tetrimino MakeTetrimino(TetriminoType type)
+Tetrimino MakeTetrimino(TetriminoType type, int x, int y)
 {
     Tetrimino tm;
-    tm.x = SpawnX;
-    tm.y = SpawnY;
+    tm.x = x;
+    tm.y = y;
     tm.type = type;
     tm.orientation = O_North;
     return tm;
 }
-    
-TetrisGame::TetrisGame(int playFieldWidth, int playFieldHeight)
-    : playField(playFieldWidth, playFieldHeight)
+
+TetrisGame::TetrisGame(int playFieldWidth, int playFieldHeight, int spawnX, int spawnY)
+    : playField(playFieldWidth, playFieldHeight, spawnX, spawnY)
 {
     Reset();
 }
@@ -120,7 +121,7 @@ void TetrisGame::Hold()
         Tetrimino next;
         if (hold != TetriminoType::TT_End)
         {
-            next = MakeTetrimino(hold);
+            next = MakeTetrimino(hold, playField.GetSpawnX(), playField.GetSpawnY());
         }
         else
         {
@@ -386,7 +387,7 @@ PlayState TetrisGame::LockAndSelectState(Tetrimino& tm)
 Tetrimino TetrisGame::SpawnNext(Randomizer& randomizer)
 {
     TetriminoType tmType = randomizer.PopNext();
-    return MakeTetrimino(tmType);
+    return MakeTetrimino(tmType, playField.GetSpawnX(), playField.GetSpawnY());
 }
 
 RotateResult TetrisGame::RotateTetrimino(Tetrimino& tm, bool clockwise)

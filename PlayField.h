@@ -31,7 +31,7 @@ struct PlayFieldDrawMetrics
 class PlayField
 {
 public:
-    PlayField(int width, int height);
+    PlayField(int width, int height, int spawnX, int spawnY);
 
     bool CheckXyOverlap(int x, int y);
 
@@ -67,8 +67,13 @@ public:
 
     void ClearRow(int y);
 
+    int GetSpawnX();
+
+    int GetSpawnY();
+
 private:
     int m_width, m_height;
+    int m_spawnX, m_spawnY;
     std::vector<Block> m_playField;
 };
 
