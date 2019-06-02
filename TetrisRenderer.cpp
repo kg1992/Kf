@@ -187,3 +187,9 @@ void TetrisRenderer::DrawPlayField(PlayField& playField)
     }
 }
 
+void TetrisRenderer::PlayFieldXyToScreenCoord(int px, int py, int height, int& sx, int& sy)
+{
+    sx = desc.pxPlayFieldX + 1 + px * desc.pxBlockSize;
+    sy = desc.pxPlayFieldY + 1 + (height - py - 1) * desc.pxBlockSize;
+}
+
