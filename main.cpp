@@ -7,16 +7,12 @@
 // ref) Lock Delay : https://tetris.fandom.com/wiki/Lock_delay
 #include <cstdio>
 #include <cstdlib>
-#include <algorithm>
-#include <vector>
-#include <random>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <filesystem>
 #include <chrono>
 #include <functional>
-#include <memory>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -26,6 +22,8 @@
 #include "Texture.h"   
 #include "TetrisGame.h"
 #include "TetrisRenderer.h"
+#include "UI.h"
+#include "SprintTimer.h"
 
 namespace filesystem = std::experimental::filesystem;
 
@@ -39,7 +37,11 @@ Mix_Chunk* g_pWavLevelup;
 Mix_Chunk* g_pWavExplosion;
 Mix_Chunk* g_pWavDrop;
 
+const int FontSize = 18;
 TTF_Font* g_pFont = nullptr;
+
+const SDL_Color ColorWhite = { 0xff, 0xff, 0xff };
+const SDL_Color ColorBlack = { 0x00, 0x00, 0x00 };
 
 filesystem::path GetPrefPath()
 {
@@ -51,314 +53,28 @@ bool IsWriteEnabled()
     return filesystem::is_directory(GetPrefPath());
 }
 
-const SDL_Color ColorWhite = { 0xff, 0xff, 0xff };
-const SDL_Color ColorBlack = { 0x00, 0x00, 0x00 };
-
 enum GameState
 {
     GS_MainMenu,
     GS_Sprint,
-    GS_ShowMinos,
     GS_Infinite,
 };
 
-class UI
+void DisplayDpiAndFontsize(float ptFontSize)
 {
-public:
-    int GetX() { return x; }
-    int GetY() { return y; }
-    int GetMinWidth() { return minWidth; }
-    int GetMinHeight() { return minHeight; }
-    void SetX(int x) { this->x = x; }
-    void SetY(int y) { this->y = y; }
-    void SetMinWidth(int minWidth) { this->minWidth = minWidth; }
-    void SetMinHeight(int minHeight) { this->minHeight = minHeight; }
-    virtual int GetWidth() { return 0; }
-    virtual int GetHeight() { return 0; }
-    void SetXy(int x, int y) { this->x = x; this->y = y; }
-    PivotPoint GetPivotPoint() { return pivot; }
-    void SetPivotPoint(PivotPoint pivot) { this->pivot = pivot; }
-    virtual void Render() {};
-
-private:
-    PivotPoint pivot;
-    int x, y;
-    int minWidth, minHeight;
-};
-
-template <typename T>
-class UINumberBox : public UI
-{
-public:
-    UINumberBox(SDL_Renderer* pRenderer, T initialValue, std::function<T(void)> fpTargetGetter, int minHeight)
-        : mLast(initialValue)
-        , mTexture(pRenderer)
-        , mTargetGetter(fpTargetGetter)
-        
+    const float PointsPerInch = 72.272f;
+    const int DisplayCount = SDL_GetNumVideoDisplays();
+    for (int i = 0; i < DisplayCount; ++i)
     {
-        mTexture.LoadFromRenderedText(std::to_string(initialValue), g_pFont, ColorBlack);
-        SetMinHeight(minHeight);
+        float ddpi, hdpi, vdpi;
+        SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi);
+        printf("%f, %f, %f\n", ddpi, hdpi, vdpi);
+        float point = ptFontSize;
+        float inch = point / PointsPerInch;
+        float pixel = inch * vdpi;
+        printf("point: %f\ninch : %f\npixel : %.0f\n", point, inch, pixel);
     }
-
-    void Render() override
-    {
-        T val = mTargetGetter();
-        if (mLast != val)
-        {
-            mTexture.LoadFromRenderedText(std::to_string(val), g_pFont, ColorBlack);
-            if (OnChange) OnChange(mLast, val);
-            mLast = val;
-        }
-        mTexture.Render(GetX(), GetY());
-    }
-
-    int GetWidth() override
-    {
-        return std::max(GetMinWidth(), mTexture.GetWidth());
-    }
-
-    int GetHeight() override
-    {
-        return std::max(GetMinHeight(), mTexture.GetHeight());
-    }
-
-    std::function<void(T oldVal, T newVal)> OnChange;
-
-private:
-    T mLast;
-    Texture mTexture;
-    std::function<T()> mTargetGetter;
-};
-
-class UITextBox : public UI
-{
-public:
-    UITextBox(SDL_Renderer* pRenderer, const std::string& content, SDL_Color color)
-        : mTexture(pRenderer)
-    {
-        mTexture.LoadFromRenderedText(content, g_pFont, color);
-    }
-
-    void SetContent(const std::string& content, SDL_Color color)
-    {
-        mTexture.LoadFromRenderedText(content, g_pFont, color);
-    }
-
-    void FreeContent()
-    {
-        mTexture.Free();
-    }
-
-    ~UITextBox()
-    {
-        mTexture.Free();
-    }
-
-    void Render() override
-    {
-        mTexture.Render(GetX(), GetY());
-    }
-
-    int GetWidth() override
-    {
-        return std::max(GetMinWidth(), mTexture.GetWidth());
-    }
-
-    int GetHeight() override
-    {
-        return std::max(GetMinHeight(), mTexture.GetHeight());
-    }
-
-private:
-    Texture mTexture;
-};
-
-class UIStack : public UI
-{
-public:
-    void AddUI(std::shared_ptr<UI> ui)
-    {
-        uis.push_back(ui);
-    }
-
-    void Render()
-    {
-        int cursorX = GetX();
-        int cursorY = GetY();
-        for (std::size_t i = 0; i < uis.size(); ++i)
-        {
-            uis[i]->SetX(cursorX);
-            uis[i]->SetY(cursorY);
-            uis[i]->Render();
-            cursorY += uis[i]->GetHeight();
-        }
-    }
-
-    int GetWidth() override
-    {
-        int width = 0;
-        for (std::size_t i = 0; i < uis.size(); ++i)
-        {
-            int childWidth = uis[i]->GetWidth();
-            if (width < childWidth)
-                width = childWidth;
-        }
-        return width;
-    }
-
-    int GetHeight() override
-    {
-        int height = 0;
-        for (std::size_t i = 0; i < uis.size(); ++i)
-        {
-            int childHeight = uis[i]->GetHeight();
-            if (height < childHeight)
-                height = childHeight;
-        }
-        return height;
-    }
-
-private:
-    std::vector<std::shared_ptr<UI>> uis;
-};
-
-struct TimerTime
-{
-    int hour;
-    int min;
-    int sec;
-    int msec;
-};
-
-class UITimer : public UI
-{
-public:
-    UITimer(SDL_Renderer* pRenderer, std::function<TimerTime()> fpTargetGetter, SDL_Color color, int minHeight)
-        : mColor(color)
-        , mTexSep(pRenderer)
-        , mTexHour(pRenderer)
-        , mTexMin(pRenderer)
-        , mTexSec(pRenderer)
-        , mTexMsec(pRenderer)
-        , mLast({ -1,-1,-1,-1 })
-        , mTargetGetter(fpTargetGetter)
-    {
-        SetMinHeight(minHeight);
-        mTexSep.LoadFromRenderedText(" : ", g_pFont, color);
-    }
-
-    void Render() override
-    {
-        TimerTime tt = mTargetGetter();
-
-        if (mLast.hour != tt.hour)
-        {
-            char buf[5];
-            sprintf_s(buf, "%02d", tt.hour);
-            mTexHour.LoadFromRenderedText(buf, g_pFont, mColor);
-        }
-        if (mLast.min != tt.min)
-        {
-            char buf[5];
-            sprintf_s(buf, "%02d", tt.min);
-            mTexMin.LoadFromRenderedText(buf, g_pFont, mColor);
-        }
-        if (mLast.sec != tt.sec)
-        {
-            char buf[5];
-            sprintf_s(buf, "%02d", tt.sec);
-            mTexSec.LoadFromRenderedText(buf, g_pFont, mColor);
-        }
-        if (mLast.msec != tt.msec)
-        {
-            char buf[5];
-            sprintf_s(buf, "%03d", tt.msec);
-            mTexMsec.LoadFromRenderedText(buf, g_pFont, mColor);
-        }
-
-        mLast = tt;
-
-        int cursorX = GetX();
-        int cursorY = GetY();
-        mTexHour.Render(cursorX, cursorY);
-        cursorX += mTexHour.GetWidth();
-        mTexSep.Render(cursorX, cursorY);
-        cursorX += mTexSep.GetWidth();
-        mTexMin.Render(cursorX, cursorY);
-        cursorX += mTexMin.GetWidth();
-        mTexSep.Render(cursorX, cursorY);
-        cursorX += mTexSep.GetWidth();
-        mTexSec.Render(cursorX, cursorY);
-        cursorX += mTexSec.GetWidth();
-        mTexSep.Render(cursorX, cursorY);
-        cursorX += mTexSep.GetWidth();
-        mTexMsec.Render(cursorX, cursorY);
-    }
-
-private:
-    SDL_Color mColor;
-    Texture mTexSep;
-    Texture mTexHour;
-    Texture mTexMin;
-    Texture mTexSec;
-    Texture mTexMsec;
-    TimerTime mLast;
-    std::function<TimerTime()> mTargetGetter;
-};
-
-class SprintTimer
-{
-public:
-    SprintTimer()
-        : stop(true)
-        , sprintClock()
-        , sprintBegin()
-        , sprintNow()
-        , time({ 0,0,0,0 })
-    {
-    }
-
-    void Start()
-    {
-        if (stop)
-        {
-            sprintBegin = sprintClock.now();
-            stop = false;
-        }
-    }
-
-    void Stop()
-    {
-        if (!stop)
-        {
-            sprintNow = sprintClock.now();
-            stop = true;
-        }
-    }
-
-    TimerTime GetTimerTime()
-    {
-        if (!stop)
-            sprintNow = sprintClock.now();
-        
-        auto duration = sprintNow - sprintBegin;
-        TimerTime tt = { 0,0,0 };
-        long long total = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-        tt.msec = total % 1000;
-        tt.sec = (total / 1000) % 60;
-        tt.min = (total / 60000) % 60;
-        tt.hour = static_cast<int>(total / 3600000);
-
-        return tt;
-    }
-
-private:
-    bool stop;
-    std::chrono::high_resolution_clock sprintClock;
-    std::chrono::high_resolution_clock::time_point sprintBegin;
-    std::chrono::high_resolution_clock::time_point sprintNow;
-    TimerTime time;
-};
+}
 
 int main(int argc, char** argv)
 {
@@ -370,7 +86,7 @@ int main(int argc, char** argv)
     }
 
     // The window we will be rendering to
-    SDL_Window* pWindow = SDL_CreateWindow("KF", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, 0);
+    SDL_Window* pWindow = SDL_CreateWindow("KFTetris v0.0.1", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, 0);
     if (!pWindow)
     {
         printf("SDL could not create window");
@@ -422,12 +138,14 @@ int main(int argc, char** argv)
     g_pWavExplosion = Mix_LoadWAV("Explosion.wav");
     g_pWavDrop = Mix_LoadWAV("Drop.wav");
 
-    g_pFont = TTF_OpenFont("arial.ttf", 22);
+    g_pFont = TTF_OpenFont("arial.ttf", FontSize);
     if (g_pFont == nullptr)
     {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
         return 1;
     }
+
+    DisplayDpiAndFontsize(FontSize);
 
     TetrisGame tetrisGame(10, 22, 3, 19);
     PlayField& playField = tetrisGame.GetPlayField();
@@ -464,31 +182,33 @@ int main(int argc, char** argv)
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "2. Sprint 40", ColorBlack)));
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "3. Quit", ColorBlack)));
 
+    const int MinWidth = 28;
+
     UIStack infiniteUI;
-    infiniteUI.SetXy(120, 200);
     infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "LINES CLEARED", ColorBlack)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox<int>(pRenderer, 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), 40)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinWidth)));
     infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "LEVEL", ColorBlack)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox<int>(pRenderer, 0, std::bind(&TetrisGame::GetLevel, &tetrisGame), 40)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetLevel, &tetrisGame), MinWidth)));
     infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "BONUS", ColorBlack)));
+    infiniteUI.SetXy(desc.pxPlayFieldX - infiniteUI.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
+
     std::shared_ptr<UITextBox> bonusShow(new UITextBox(pRenderer, "", ColorBlack));
-    bonusShow->SetMinHeight(40);
+    bonusShow->SetMinHeight(MinWidth);
     infiniteUI.AddUI(bonusShow);
     infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "COMBO", ColorBlack)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox<int>(pRenderer, 0, std::bind(&TetrisGame::GetCombo, &tetrisGame), 40)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetCombo, &tetrisGame), MinWidth)));
     infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "SCORE", ColorBlack)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox<int>(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), 40)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinWidth)));
 
     SprintTimer sprintTimer;
-
     UIStack sprintUI;
-    sprintUI.SetXy(120, 200);
     sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "LINES CLEARED", ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox<int>(pRenderer, 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), 40)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinWidth)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "SCORE", ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox<int>(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), 40)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinWidth)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "TIME", ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(pRenderer, std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorBlack, 40)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(pRenderer, std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorBlack, MinWidth)));
+    sprintUI.SetXy(desc.pxPlayFieldX - sprintUI.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
 
     Texture readyShow(pRenderer);
     readyShow.LoadFromRenderedText("Press Space To Start", g_pFont, ColorBlack);
@@ -546,13 +266,6 @@ int main(int argc, char** argv)
                         quit = true;
                     }
                     break;
-                }
-                case SDLK_4:
-                {
-                    if (gameState == GS_MainMenu )
-                    {
-                        gameState = GS_ShowMinos;
-                    }
                 }
                     break;
                 case SDLK_F5:
@@ -715,25 +428,6 @@ int main(int argc, char** argv)
                 sprintTimer.Stop();
                 sprintCompleteShow.Render((ScreenWidth - sprintCompleteShow.GetWidth()) / 2, (ScreenHeight - sprintCompleteShow.GetHeight()) / 2);
                 tetrisGame.Win();
-            }
-        }
-        else if (gameState == GS_ShowMinos)
-        {
-            TetriminoType tts[] = { TT_I, TT_O, TT_T, TT_J, TT_L, TT_S, TT_Z };
-            for (int i = 0; i < _countof(tts); ++i)
-            {
-                Tetrimino tm = MakeTetrimino(tts[i]);
-                tm.y = 28 - i * 4;
-                tetrisRenderer.DrawTetrimino(tm, false, true);
-                tm.IncreaseOrientation();
-                tm.x += 4;
-                tetrisRenderer.DrawTetrimino(tm, false, true);
-                tm.IncreaseOrientation();
-                tm.x += 4;
-                tetrisRenderer.DrawTetrimino(tm, false, true);
-                tm.IncreaseOrientation();
-                tm.x += 4;
-                tetrisRenderer.DrawTetrimino(tm, false, true);
             }
         }
 

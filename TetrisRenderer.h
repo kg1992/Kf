@@ -5,18 +5,6 @@
 #include "TetrisGame.h"
 #include "Texture.h"
 
-enum PivotPoint {
-    P_Center,
-    P_Top,
-    P_TopRight,
-    P_Right,
-    P_BottomRight,
-    P_Bottom,
-    P_LeftBottom,
-    P_Left,
-    P_LeftTop,
-};
-
 class MinoRenderer
 {
 public:
