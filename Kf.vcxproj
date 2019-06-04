@@ -150,6 +150,7 @@
     <ClCompile Include="LineClearInfoTable.cpp" />
     <ClCompile Include="PlayField.cpp" />
     <ClCompile Include="Randomizer.cpp" />
+    <ClCompile Include="ScoreKeeper.cpp" />
     <ClCompile Include="SprintTimer.cpp" />
     <ClCompile Include="Tetrimino.cpp" />
     <ClCompile Include="TetrisGame.cpp" />

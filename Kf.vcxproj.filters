@@ -12,6 +12,7 @@
     <ClCompile Include="PlayField.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="SprintTimer.cpp" />
+    <ClCompile Include="ScoreKeeper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PresetBoards.h" />

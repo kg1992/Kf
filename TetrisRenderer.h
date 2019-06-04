@@ -36,10 +36,10 @@ struct TetrisRenderDesc
     int pxPlayFieldY;
     int pxBlockSize = 16;
     int visibleLines = 20;
-    enum { MAXIMUM_NEXT_COUNT = 0x20 };
-    int nextCount = MAXIMUM_NEXT_COUNT;
-    int pxNextX[MAXIMUM_NEXT_COUNT];
-    int pxNextY[MAXIMUM_NEXT_COUNT];
+    enum { MaximumNextCount = 0x20 };
+    int nextCount = MaximumNextCount;
+    int pxNextX[MaximumNextCount];
+    int pxNextY[MaximumNextCount];
     int pxHoldX;
     int pxHoldY;
 };

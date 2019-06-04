@@ -35,7 +35,7 @@ const int ScreenHeight = 600;
 Mix_Music* g_pMusic = nullptr;
 Mix_Chunk* g_pWavLevelup;
 Mix_Chunk* g_pWavExplosion;
-Mix_Chunk* g_pWavDrop;
+Mix_Chunk* g_pWavDrop;  
 
 const int FontSize = 18;
 TTF_Font* g_pFont = nullptr;
@@ -445,6 +445,7 @@ int main(int argc, char** argv)
         frameTick = frameClock.now();
     } // while(!quit)
 
+    SDL_DestroyRenderer(pRenderer);
     SDL_DestroyWindow(pWindow);
 
     TTF_CloseFont(g_pFont);
