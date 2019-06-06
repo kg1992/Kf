@@ -146,12 +146,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="FiniteStateMachine.cpp" />
     <ClCompile Include="KickTable.cpp" />
     <ClCompile Include="LineClearInfoTable.cpp" />
     <ClCompile Include="PlayField.cpp" />
     <ClCompile Include="Randomizer.cpp" />
     <ClCompile Include="ScoreKeeper.cpp" />
     <ClCompile Include="SprintTimer.cpp" />
+    <ClCompile Include="StateInfiniteMode.cpp" />
+    <ClCompile Include="StateMainMenu.cpp" />
+    <ClCompile Include="StateSprintMode.cpp" />
     <ClCompile Include="Tetrimino.cpp" />
     <ClCompile Include="TetrisGame.cpp" />
     <ClCompile Include="TetrisRenderer.cpp" />
@@ -160,12 +165,17 @@
     <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FiniteStateMachine.h" />
+    <ClInclude Include="Application.h" />
     <ClInclude Include="KickTable.h" />
     <ClInclude Include="LineClearInfoTable.h" />
     <ClInclude Include="PlayField.h" />
     <ClInclude Include="Randomizer.h" />
     <ClInclude Include="ScoreKeeper.h" />
     <ClInclude Include="SprintTimer.h" />
+    <ClInclude Include="StateInfiniteMode.h" />
+    <ClInclude Include="StateMainMenu.h" />
+    <ClInclude Include="StateSprintMode.h" />
     <ClInclude Include="Tetrimino.h" />
     <ClInclude Include="TetrisRenderer.h" />
     <ClInclude Include="Texture.h" />

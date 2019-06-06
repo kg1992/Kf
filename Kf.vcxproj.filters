@@ -13,6 +13,11 @@
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="SprintTimer.cpp" />
     <ClCompile Include="ScoreKeeper.cpp" />
+    <ClCompile Include="FiniteStateMachine.cpp" />
+    <ClCompile Include="StateMainMenu.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="StateSprintMode.cpp" />
+    <ClCompile Include="StateInfiniteMode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PresetBoards.h" />
@@ -28,5 +33,10 @@
     <ClInclude Include="UI.h" />
     <ClInclude Include="SprintTimer.h" />
     <ClInclude Include="TimerTime.h" />
+    <ClInclude Include="FiniteStateMachine.h" />
+    <ClInclude Include="StateMainMenu.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="StateSprintMode.h" />
+    <ClInclude Include="StateInfiniteMode.h" />
   </ItemGroup>
 </Project>

@@ -61,7 +61,7 @@ public:
 
 private:
     MinoRenderer& m_minoRenderer;
-    TetrisRenderDesc desc;
+    TetrisRenderDesc m_desc;
 
     void DrawPlayField(PlayField& playField);
 

@@ -72,7 +72,7 @@ void TetrisRenderer::DrawTetrimino(Tetrimino& tm, int height, bool ghost, bool f
     int px, py, sx, sy;
     MinoPatternIndexToXY(tm.x, tm.y, 0, px, py);
     PlayFieldXyToScreenCoord(px, py, height, sx, sy);
-    DrawTetrimino(sx, sy, tm.type, tm.orientation, desc.pxBlockSize, ghost, fillBackground);
+    DrawTetrimino(sx, sy, tm.type, tm.orientation, m_desc.pxBlockSize, ghost, fillBackground);
 }
 
 void TetrisRenderer::DrawTetrimino(int sx, int sy, TetriminoType type, Orientation orientation, int pxBlockSize, bool ghost, bool fillBackground)
@@ -105,7 +105,7 @@ void TetrisRenderer::DrawTetrimino(int sx, int sy, TetriminoType type, Orientati
 
 void TetrisRenderer::DrawTetris(TetrisGame& game)
 {
-    const int Height = std::min(game.GetPlayField().GetHeight(), desc.visibleLines);
+    const int Height = std::min(game.GetPlayField().GetHeight(), m_desc.visibleLines);
 
     // Draw playfield
     DrawPlayField(game.GetPlayField());
@@ -129,12 +129,12 @@ void TetrisRenderer::DrawTetris(TetrisGame& game)
     }
     
     // Draw next tetriminos
-    for (int i = 0; i < desc.nextCount; ++i)
+    for (int i = 0; i < m_desc.nextCount; ++i)
     {
         TetriminoType tt = game.GetRandomizer().Peek(i);
         if (tt != TT_End)
         {
-            DrawTetrimino(desc.pxNextX[i], desc.pxNextY[i], tt, O_North, desc.pxBlockSize, false, true);
+            DrawTetrimino(m_desc.pxNextX[i], m_desc.pxNextY[i], tt, O_North, m_desc.pxBlockSize, false, true);
         }
     }
 
@@ -142,32 +142,32 @@ void TetrisRenderer::DrawTetris(TetrisGame& game)
     TetriminoType hold = game.GetHold();
     if (hold != TT_End)
     {
-        DrawTetrimino(desc.pxHoldX, desc.pxHoldY, hold, O_North, desc.pxBlockSize, false, true);
+        DrawTetrimino(m_desc.pxHoldX, m_desc.pxHoldY, hold, O_North, m_desc.pxBlockSize, false, true);
     }
 }
 
 void TetrisRenderer::SetTetrisRenderDesc(const TetrisRenderDesc& desc)
 {
-    this->desc = desc;
+    m_desc = desc;
 }
 
 const TetrisRenderDesc& TetrisRenderer::GetTetrisRenderDesc()
 {
-    return desc;
+    return m_desc;
 }
 
 void TetrisRenderer::DrawPlayField(PlayField& playField)
 {
     const int Width = playField.GetWidth();
-    const int Height = std::min(desc.visibleLines, playField.GetHeight());
-    const int PxPlayFieldWidth = Width * desc.pxBlockSize + 2;
-    const int PxPlayFieldHeight = Height * desc.pxBlockSize + 2;
+    const int Height = std::min(m_desc.visibleLines, playField.GetHeight());
+    const int PxPlayFieldWidth = Width * m_desc.pxBlockSize + 2;
+    const int PxPlayFieldHeight = Height * m_desc.pxBlockSize + 2;
     SDL_Renderer* pRenderer = m_minoRenderer.GetSDLRenderer();
 
     // Draw playfield boundary
     SDL_Rect rect = {
-        desc.pxPlayFieldX,
-        desc.pxPlayFieldY,
+        m_desc.pxPlayFieldX,
+        m_desc.pxPlayFieldY,
         PxPlayFieldWidth,
         PxPlayFieldHeight,
     };
@@ -181,7 +181,7 @@ void TetrisRenderer::DrawPlayField(PlayField& playField)
             Block block = playField.Get(x, y);
             int sx, sy;
             PlayFieldXyToScreenCoord( x, y , Height, sx, sy);
-            SDL_Rect rect = { sx, sy, desc.pxBlockSize, desc.pxBlockSize };
+            SDL_Rect rect = { sx, sy, m_desc.pxBlockSize, m_desc.pxBlockSize };
             m_minoRenderer.DrawMino(block, &rect);
         }
     }
@@ -189,7 +189,7 @@ void TetrisRenderer::DrawPlayField(PlayField& playField)
 
 void TetrisRenderer::PlayFieldXyToScreenCoord(int px, int py, int height, int& sx, int& sy)
 {
-    sx = desc.pxPlayFieldX + 1 + px * desc.pxBlockSize;
-    sy = desc.pxPlayFieldY + 1 + (height - py - 1) * desc.pxBlockSize;
+    sx = m_desc.pxPlayFieldX + 1 + px * m_desc.pxBlockSize;
+    sy = m_desc.pxPlayFieldY + 1 + (height - py - 1) * m_desc.pxBlockSize;
 }
 
