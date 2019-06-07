@@ -31,6 +31,7 @@ std::shared_ptr<State> Application::pStateOptions;
 const Uint8* Application::state;
 SDL_Window* Application::window;
 Options Application::options;
+StringTable Application::stringTable;
 bool Application::quit = false;
 
 const int FontSize = 18;
@@ -72,7 +73,7 @@ int Application::Start()
     }
 
     // The window we will be rendering to
-    SDL_Window* pWindow = SDL_CreateWindow("KFTetris v0.0.1", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, 0);
+    SDL_Window* pWindow = SDL_CreateWindow("KFTetris v0.0.2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, 0);
     if (!pWindow)
     {
         printf("SDL could not create window");
@@ -128,7 +129,7 @@ int Application::Start()
     g_pWavDrop = Mix_LoadWAV("Drop.wav");
 
     // Load font
-    g_pFont = TTF_OpenFont("NanumBarunGothicBold.ttf", FontSize);
+    g_pFont = TTF_OpenFont("NanumBarunGothic.ttf", FontSize);
     if (g_pFont == nullptr)
     {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
@@ -146,7 +147,7 @@ int Application::Start()
     TetrisRenderer tetrisRenderer(minoRenderer);
 
     pStateMainMenu.reset(new StateMainMenu(pRenderer));
-    pStateSprintMode.reset(new StateSprintMode(pRenderer, tetrisRenderer));
+    pStateSprintMode.reset(new StateSprintMode(tetrisRenderer));
     pStateInfiniteMode.reset(new StateInfiniteMode(pRenderer, tetrisRenderer));
     pStateOptions.reset(new StateOptions(pRenderer));
 
@@ -234,4 +235,30 @@ int Application::GetClientAreaHeight()
     int w, h;
     SDL_GetRendererOutputSize(pRenderer, &w, &h);
     return h;
+}
+
+filesystem::path Application::GetPrefPath()
+{
+    return SDL_GetPrefPath("Kf", "Tetris");
+}
+
+bool Application::IsWriteEnabled()
+{
+    return filesystem::is_directory(GetPrefPath());
+}
+
+const std::wstring& Application::GetString(StringTable::StringID id)
+{
+    return stringTable.GetString(options.language, id);
+}
+
+SDL_Renderer* Application::GetWindowRenderer()
+{
+    return SDL_GetRenderer(window);
+}
+
+std::string Utf16wstrToUtf8str(const std::wstring& content)
+{
+    std::wstring_convert< std::codecvt_utf8_utf16<wchar_t> > cvt;
+    return cvt.to_bytes(content);
 }

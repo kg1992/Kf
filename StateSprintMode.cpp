@@ -4,30 +4,32 @@
 #include "TetrisRenderer.h"
 #include "Application.h"
 
-StateSprintMode::StateSprintMode(SDL_Renderer* pRenderer, TetrisRenderer& tetrisRenderer)
+StateSprintMode::StateSprintMode(TetrisRenderer& tetrisRenderer)
     : tetrisGame(10, 22, 3, 19)
     , tetrisRenderer(tetrisRenderer)
     , sprintTimer()
-    , readyShow(pRenderer)
-    , gameoverShow(pRenderer)
-    , sprintCompleteShow(pRenderer)
+    , readyShow(Application::GetWindowRenderer())
+    , gameoverShow(Application::GetWindowRenderer())
+    , sprintCompleteShow(Application::GetWindowRenderer())
 {
-    PlayField& playField = tetrisGame.GetPlayField();
-
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "LINES CLEARED", ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinTextBoxHeight)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "SCORE", ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinTextBoxHeight)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "TIME", ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(pRenderer, std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorBlack, MinTextBoxHeight)));
-
-    readyShow.LoadFromRenderedText("Press Space To Start", g_pFont, ColorBlack);
-    gameoverShow.LoadFromRenderedText("Game Over! Press R to restart. Press Q to return to main menu.", g_pFont, ColorBlack);
-    sprintCompleteShow.LoadFromRenderedText("Done! Check the time on left. Press Q to return to main menu", g_pFont, ColorBlack);
 }
 
 void StateSprintMode::OnStart()
 {
+    PlayField& playField = tetrisGame.GetPlayField();
+
+    sprintUI.Clear();
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetWindowRenderer(), Application::GetString(StringTable::SI_LineClear), ColorBlack)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(Application::GetWindowRenderer(), 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinTextBoxHeight)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetWindowRenderer(), Application::GetString(StringTable::SI_Score), ColorBlack)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(Application::GetWindowRenderer(), 0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinTextBoxHeight)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetWindowRenderer(), Application::GetString(StringTable::SI_Time), ColorBlack)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(Application::GetWindowRenderer(), std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorBlack, MinTextBoxHeight)));
+
+    readyShow.LoadFromRenderedText(Utf16wstrToUtf8str(Application::GetString(StringTable::SI_Ready)), g_pFont, ColorBlack);
+    gameoverShow.LoadFromRenderedText(Utf16wstrToUtf8str(Application::GetString(StringTable::SI_GameOver)), g_pFont, ColorBlack);
+    sprintCompleteShow.LoadFromRenderedText(Utf16wstrToUtf8str(Application::GetString(StringTable::SI_Sprint_Complete)), g_pFont, ColorBlack);
+
     TetrisRenderDesc desc = { 0 };
     // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
     desc.pxPlayFieldX = (Application::GetClientAreaWidth() - tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;

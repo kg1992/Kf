@@ -10,7 +10,7 @@
 class StateSprintMode : public State
 {
 public:
-    StateSprintMode(SDL_Renderer* pRenderer, TetrisRenderer& tetrisRenderer);
+    StateSprintMode(TetrisRenderer& tetrisRenderer);
 
     void OnStart() override;
 

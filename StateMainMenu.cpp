@@ -3,13 +3,20 @@
 #include "Application.h"
 
 StateMainMenu::StateMainMenu(SDL_Renderer* pRenderer)
+    : m_pRenderer(pRenderer)
 {
+}
+
+void StateMainMenu::OnStart()
+{
+    mainMenu.Clear();
     mainMenu.SetXy(10, 10);
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "Press number key to select", ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "1. Infinity Mode", ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "2. Sprint 40", ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "3. Options", ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "4. Quit", ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Top), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Infinite), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Sprint), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Options), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Quit), ColorBlack)));
+    mainMenu.Render();
 }
 
 void StateMainMenu::OnRender()

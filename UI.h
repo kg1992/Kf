@@ -68,8 +68,11 @@ class UITextBox : public UI
 {
 public:
     UITextBox(SDL_Renderer* pRenderer, const std::string& content, SDL_Color color);
+    UITextBox(SDL_Renderer* pRenderer, const std::wstring& content, SDL_Color color);
 
     void SetContent(const std::string& content, SDL_Color color);
+
+    void SetContent(const std::wstring& content, SDL_Color color);
 
     void FreeContent();
 
@@ -96,6 +99,8 @@ public:
 
     int GetHeight() override;
 
+    void Clear();
+
 private:
     std::vector<std::shared_ptr<UI>> m_children;
 };
@@ -104,6 +109,8 @@ class UITimer : public UI
 {
 public:
     UITimer(SDL_Renderer* pRenderer, std::function<TimerTime()> fpTargetGetter, SDL_Color color, int minHeight);
+
+    int GetWidth() override;
 
     void Render() override;
 
@@ -116,6 +123,8 @@ private:
     Texture mTexMsec;
     TimerTime mLast;
     std::function<TimerTime()> mTargetGetter;
+
+    void Refresh();
 };
 
 #endif

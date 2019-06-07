@@ -15,7 +15,6 @@ Texture::Texture(SDL_Renderer* pRenderer)
 
 Texture::~Texture()
 {
-    //Deallocate
     Free();
 }
 
@@ -66,7 +65,8 @@ bool Texture::LoadFromRenderedText(std::string textureText, TTF_Font* pFont, SDL
     Free();
 
     //Render text surface
-    SDL_Surface* textSurface = TTF_RenderText_Solid(pFont, textureText.c_str(), textColor);
+    //SDL_Surface* textSurface = TTF_RenderUTF8_Solid(pFont, textureText.c_str(), textColor);
+    SDL_Surface* textSurface = TTF_RenderUTF8_Blended(pFont, textureText.c_str(), textColor);
     if (textSurface == NULL)
     {
         printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
@@ -114,17 +114,14 @@ void Texture::SetAlpha(Uint8 alpha)
 
 void Texture::Render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip)
 {
-    //Set rendering space and render to screen
     SDL_Rect renderQuad = { x, y, m_width, m_height };
 
-    //Set clip rendering dimensions
     if (clip != NULL)
     {
         renderQuad.w = clip->w;
         renderQuad.h = clip->h;
     }
 
-    //Render to screen
     SDL_RenderCopyEx(m_pRenderer, m_pTexture, clip, &renderQuad, angle, center, flip);
 }
 

@@ -1,11 +1,9 @@
 #include "UI.h"
 #include <algorithm>
+#include <codecvt>
+#include "Application.h"
 
 extern TTF_Font* g_pFont;
-
-const SDL_Color ColorWhite = { 0xff, 0xff, 0xff };
-const SDL_Color ColorBlack = { 0x00, 0x00, 0x00 };
-
 
 UINumberBox::UINumberBox(SDL_Renderer* pRenderer, int initialValue, std::function<int(void)> fpTargetGetter, int minHeight)
     : mLast(initialValue)
@@ -45,9 +43,20 @@ UITextBox::UITextBox(SDL_Renderer* pRenderer, const std::string& content, SDL_Co
     mTexture.LoadFromRenderedText(content, g_pFont, color);
 }
 
+UITextBox::UITextBox(SDL_Renderer* pRenderer, const std::wstring& content, SDL_Color color)
+    : mTexture(pRenderer)
+{
+    mTexture.LoadFromRenderedText(Utf16wstrToUtf8str(content), g_pFont, color);
+}
+
 void UITextBox::SetContent(const std::string& content, SDL_Color color)
 {
     mTexture.LoadFromRenderedText(content, g_pFont, color);
+}
+
+void UITextBox::SetContent(const std::wstring& content, SDL_Color color)
+{
+    SetContent(Utf16wstrToUtf8str(content), color);
 }
 
 void UITextBox::FreeContent()
@@ -116,6 +125,11 @@ int UIStack::GetHeight()
     return height;
 }
 
+void UIStack::Clear()
+{
+    m_children.clear();
+}
+
 UITimer::UITimer(SDL_Renderer* pRenderer, std::function<TimerTime()> fpTargetGetter, SDL_Color color, int minHeight)
     : mColor(color)
     , mTexSep(pRenderer)
@@ -128,9 +142,42 @@ UITimer::UITimer(SDL_Renderer* pRenderer, std::function<TimerTime()> fpTargetGet
 {
     SetMinHeight(minHeight);
     mTexSep.LoadFromRenderedText(" : ", g_pFont, color);
+    Refresh();
+}
+
+int UITimer::GetWidth()
+{
+    return
+        mTexSep.GetWidth() * 3 +
+        mTexHour.GetWidth() +
+        mTexMin.GetWidth() +
+        mTexSec.GetWidth() +
+        mTexMsec.GetWidth();
 }
 
 void UITimer::Render()
+{
+    Refresh();
+
+    int cursorX = GetX();
+    int cursorY = GetY();
+    mTexHour.Render(cursorX, cursorY);
+    cursorX += mTexHour.GetWidth();
+    mTexSep.Render(cursorX, cursorY);
+    cursorX += mTexSep.GetWidth();
+    mTexMin.Render(cursorX, cursorY);
+    cursorX += mTexMin.GetWidth();
+    mTexSep.Render(cursorX, cursorY);
+    cursorX += mTexSep.GetWidth();
+    mTexSec.Render(cursorX, cursorY);
+    cursorX += mTexSec.GetWidth();
+    mTexSep.Render(cursorX, cursorY);
+    cursorX += mTexSep.GetWidth();
+    mTexMsec.Render(cursorX, cursorY);
+}
+
+
+void UITimer::Refresh()
 {
     TimerTime tt = mTargetGetter();
 
@@ -160,20 +207,4 @@ void UITimer::Render()
     }
 
     mLast = tt;
-
-    int cursorX = GetX();
-    int cursorY = GetY();
-    mTexHour.Render(cursorX, cursorY);
-    cursorX += mTexHour.GetWidth();
-    mTexSep.Render(cursorX, cursorY);
-    cursorX += mTexSep.GetWidth();
-    mTexMin.Render(cursorX, cursorY);
-    cursorX += mTexMin.GetWidth();
-    mTexSep.Render(cursorX, cursorY);
-    cursorX += mTexSep.GetWidth();
-    mTexSec.Render(cursorX, cursorY);
-    cursorX += mTexSec.GetWidth();
-    mTexSep.Render(cursorX, cursorY);
-    cursorX += mTexSep.GetWidth();
-    mTexMsec.Render(cursorX, cursorY);
 }

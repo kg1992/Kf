@@ -12,6 +12,8 @@ class StateInfiniteMode : public State
 public:
     StateInfiniteMode(SDL_Renderer* pRenderer, TetrisRenderer& tetrisRenderer);
 
+    void OnStart() override;
+
     void OnUpdate() override;
 
     void OnRender() override;

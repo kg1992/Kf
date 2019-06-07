@@ -8,9 +8,23 @@ StateOptions::StateOptions(SDL_Renderer* pRenderer)
 {
     const SDL_Color ColorBlack = {0,0,0};
     std::shared_ptr<UIStack> stack(new UIStack);
-    stack->AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "1. Change Resolution", ColorBlack)));
-    stack->AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "2. Toggle Fullscreen", ColorBlack)));
-    stack->AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "3. Return", ColorBlack)));
+    
+    m_changeResolutioniBox.reset(new UITextBox(pRenderer, "PLACEHOLDER", ColorBlack));
+    stack->AddUI(m_changeResolutioniBox);
+
+    m_toggleFullscreenBox.reset(new UITextBox(pRenderer, "PLACEHOLDER", ColorBlack));
+    stack->AddUI(m_toggleFullscreenBox);
+
+    m_changeLanguageBox.reset(new UITextBox(pRenderer, "PLACEHOLDER", ColorBlack));
+    stack->AddUI(m_changeLanguageBox);
+
+    m_quitBox.reset(new UITextBox(pRenderer, "PLACEHOLDER", ColorBlack));
+    stack->AddUI(m_quitBox);
+
+    stack->SetXy(10, 10);
+
+    RefreshTexts();
+
     m_ui = std::dynamic_pointer_cast<UI>(stack);
 }
 
@@ -43,6 +57,7 @@ void StateOptions::OnSdlEvent(const SDL_Event& e)
             int& ri = Application::options.resolutionIndex;
             ri = (ri + 1) % resolutions.size();
             Application::ResizeWindow(resolutions[ri].first, resolutions[ri].second);
+            RefreshTexts();
             break;
         }
         case SDLK_2:
@@ -55,13 +70,38 @@ void StateOptions::OnSdlEvent(const SDL_Event& e)
             {
                 SDL_SetWindowFullscreen(Application::window, SDL_WINDOW_FULLSCREEN_DESKTOP);
             }
+            RefreshTexts();
             break;
         }
         case SDLK_3:
+        {
+            Application::options.IncreaseLanguage();
+            RefreshTexts();
+        }
+            break;
+        case SDLK_4:
             Application::gsm.SetState(&*Application::pStateMainMenu); 
+            break;
+
+        case SDLK_s:
+            Application::options.Save(Application::GetPrefPath() / "options.txt");
+            break;
+        case SDLK_l:
+            Application::options.Load(Application::GetPrefPath() / "options.txt");
             break;
         default:
             break;
         }
     }
+}
+
+void StateOptions::RefreshTexts()
+{
+    m_changeResolutioniBox->SetContent(Application::GetFormattedString(StringTable::SI_Options_Resolution, Application::GetClientAreaWidth(), Application::GetClientAreaHeight()), ColorBlack);
+
+    m_toggleFullscreenBox->SetContent(Application::GetString(StringTable::SI_Options_Toggle_Fullscreen), ColorBlack);
+
+    m_changeLanguageBox->SetContent(Application::GetFormattedString(StringTable::SI_Options_Language, Application::options.language.c_str()), ColorBlack);
+
+    m_quitBox->SetContent(Application::GetString(StringTable::SI_Options_Return), ColorBlack);
 }

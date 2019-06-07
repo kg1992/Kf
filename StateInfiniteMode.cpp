@@ -1,33 +1,43 @@
 #include "StateInfiniteMode.h"
 #include <iostream>
 #include <fstream>
-#include <filesystem>
 #include <SDL_mixer.h>
 #include "Application.h"
 
-namespace filesystem = std::experimental::filesystem;
-
-filesystem::path GetPrefPath()
-{
-    return SDL_GetPrefPath("Kf", "Tetris");
-}
-
-bool IsWriteEnabled()
-{
-    return filesystem::is_directory(GetPrefPath());
-}
-
 StateInfiniteMode::StateInfiniteMode(SDL_Renderer* pRenderer, TetrisRenderer& tetrisRenderer)
-    : tetrisGame(10, 22, 4, 20)
+    : tetrisGame(10, 22, 3, 19)
     , tetrisRenderer(tetrisRenderer)
     , readyShow(pRenderer)
     , gameoverShow(pRenderer)
 {
+}
+
+void StateInfiniteMode::OnStart()
+{
     PlayField& playField = tetrisGame.GetPlayField();
+
+    SDL_Renderer* pRenderer = Application::GetWindowRenderer();
+
+    infiniteUI.Clear();
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, Application::GetString(StringTable::SI_LineClear), ColorBlack)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinTextBoxHeight)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, Application::GetString(StringTable::SI_Level), ColorBlack)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetLevel, &tetrisGame), MinTextBoxHeight)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, Application::GetString(StringTable::SI_Bonus), ColorBlack)));
+    std::shared_ptr<UITextBox> bonusShow(new UITextBox(pRenderer, "", ColorBlack));
+    bonusShow->SetMinHeight(MinTextBoxHeight);
+    infiniteUI.AddUI(bonusShow);
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, Application::GetString(StringTable::SI_Combo), ColorBlack)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetCombo, &tetrisGame), MinTextBoxHeight)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, Application::GetString(StringTable::SI_Score), ColorBlack)));
+    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinTextBoxHeight)));
+
+    readyShow.LoadFromRenderedText("Press Space To Start", g_pFont, ColorBlack);
+    gameoverShow.LoadFromRenderedText("Game Over! Press R to restart. Press Q to return to main menu.", g_pFont, ColorBlack);
 
     TetrisRenderDesc desc = { 0 };
     // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
-    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - playField.GetWidth() * PxBlockSize) / 2;
+    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - tetrisGame.GetPlayField().GetWidth() * PxBlockSize) / 2;
     // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
     desc.pxPlayFieldY = 100;
     desc.pxHoldX = desc.pxPlayFieldX - 64 - 16;
@@ -41,23 +51,7 @@ StateInfiniteMode::StateInfiniteMode(SDL_Renderer* pRenderer, TetrisRenderer& te
 
     desc.visibleLines = 20;
     tetrisRenderer.SetTetrisRenderDesc(desc);
-
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "LINES CLEARED", ColorBlack)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinTextBoxHeight)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "LEVEL", ColorBlack)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetLevel, &tetrisGame), MinTextBoxHeight)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "BONUS", ColorBlack)));
     infiniteUI.SetXy(desc.pxPlayFieldX - infiniteUI.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
-    std::shared_ptr<UITextBox> bonusShow(new UITextBox(pRenderer, "", ColorBlack));
-    bonusShow->SetMinHeight(MinTextBoxHeight);
-    infiniteUI.AddUI(bonusShow);
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "COMBO", ColorBlack)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetCombo, &tetrisGame), MinTextBoxHeight)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "SCORE", ColorBlack)));
-    infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinTextBoxHeight)));
-
-    readyShow.LoadFromRenderedText("Press Space To Start", g_pFont, ColorBlack);
-    gameoverShow.LoadFromRenderedText("Game Over! Press R to restart. Press Q to return to main menu.", g_pFont, ColorBlack);
 }
 
 void StateInfiniteMode::OnUpdate()
@@ -114,7 +108,7 @@ void StateInfiniteMode::OnSdlEvent(const SDL_Event& e)
         {
             if (tetrisGame.GetPlayState() == PS_Control)
             {
-                std::ofstream ofs(GetPrefPath() / "SavedState.dat");
+                std::ofstream ofs(Application::GetPrefPath() / "SavedState.dat");
                 tetrisGame.SaveState(ofs);
             }
             break;
@@ -123,7 +117,7 @@ void StateInfiniteMode::OnSdlEvent(const SDL_Event& e)
         {
             if (tetrisGame.GetPlayState() == PS_Control)
             {
-                std::ifstream ifs(GetPrefPath() / "SavedState.dat");
+                std::ifstream ifs(Application::GetPrefPath() / "SavedState.dat");
                 tetrisGame.LoadState(ifs);
             }
             break;
