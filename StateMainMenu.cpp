@@ -8,7 +8,8 @@ StateMainMenu::StateMainMenu(SDL_Renderer* pRenderer)
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "Press number key to select", ColorBlack)));
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "1. Infinity Mode", ColorBlack)));
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "2. Sprint 40", ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "3. Quit", ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "3. Options", ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "4. Quit", ColorBlack)));
 }
 
 void StateMainMenu::OnRender()
@@ -33,6 +34,9 @@ void StateMainMenu::OnSdlEvent(const SDL_Event& e)
             Mix_ResumeMusic();
             break;
         case SDLK_3:
+            Application::gsm.SetState(&*Application::pStateOptions);
+            break;
+        case SDLK_4:
             Application::Quit();
             break;
         default:

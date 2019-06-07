@@ -14,30 +14,12 @@ StateSprintMode::StateSprintMode(SDL_Renderer* pRenderer, TetrisRenderer& tetris
 {
     PlayField& playField = tetrisGame.GetPlayField();
 
-    TetrisRenderDesc desc = { 0 };
-    // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
-    desc.pxPlayFieldX = (ScreenWidth - playField.GetWidth() * PxBlockSize) / 2;
-    // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
-    desc.pxPlayFieldY = 100;
-    desc.pxHoldX = desc.pxPlayFieldX - 64 - 16;
-    desc.pxHoldY = desc.pxPlayFieldY;
-    desc.nextCount = 5;
-    for (int i = 0; i < 5; ++i)
-    {
-        desc.pxNextX[i] = desc.pxPlayFieldX + PxBlockSize * 11;
-        desc.pxNextY[i] = desc.pxPlayFieldY + i * 64;
-    }
-
-    desc.visibleLines = 20;
-    tetrisRenderer.SetTetrisRenderDesc(desc);
-
     sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "LINES CLEARED", ColorBlack)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinTextBoxHeight)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "SCORE", ColorBlack)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(pRenderer, 0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinTextBoxHeight)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(pRenderer, "TIME", ColorBlack)));
     sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(pRenderer, std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorBlack, MinTextBoxHeight)));
-    sprintUI.SetXy(desc.pxPlayFieldX - sprintUI.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
 
     readyShow.LoadFromRenderedText("Press Space To Start", g_pFont, ColorBlack);
     gameoverShow.LoadFromRenderedText("Game Over! Press R to restart. Press Q to return to main menu.", g_pFont, ColorBlack);
@@ -46,6 +28,23 @@ StateSprintMode::StateSprintMode(SDL_Renderer* pRenderer, TetrisRenderer& tetris
 
 void StateSprintMode::OnStart()
 {
+    TetrisRenderDesc desc = { 0 };
+    // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
+    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;
+    // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
+    desc.pxPlayFieldY = (Application::GetClientAreaHeight() - tetrisGame.GetPlayField().GetHeight() * desc.pxBlockSize) / 2;
+    desc.pxHoldX = desc.pxPlayFieldX - 64 - 16;
+    desc.pxHoldY = desc.pxPlayFieldY;
+    desc.nextCount = 5;
+    for (int i = 0; i < 5; ++i)
+    {
+        desc.pxNextX[i] = desc.pxPlayFieldX + desc.pxBlockSize * 11;
+        desc.pxNextY[i] = desc.pxPlayFieldY + i * desc.pxBlockSize * 4;
+    }
+
+    desc.visibleLines = 20;
+    tetrisRenderer.SetTetrisRenderDesc(desc);
+    sprintUI.SetXy(desc.pxPlayFieldX - sprintUI.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
 }
 
 void StateSprintMode::OnUpdate()
@@ -77,21 +76,24 @@ void StateSprintMode::OnUpdate()
 
 void StateSprintMode::OnRender()
 {
+    int screenWidth = Application::GetClientAreaWidth();
+    int screenHeight = Application::GetClientAreaHeight();
+
     tetrisRenderer.DrawTetris(tetrisGame);
 
     sprintUI.Render();
 
     if (tetrisGame.GetPlayState() == PS_GameOver) {
         sprintTimer.Stop();
-        gameoverShow.Render((ScreenWidth - gameoverShow.GetWidth()) / 2, (ScreenHeight - gameoverShow.GetHeight()) / 2);
+        gameoverShow.Render((screenWidth - gameoverShow.GetWidth()) / 2, (screenHeight - gameoverShow.GetHeight()) / 2);
     }
     else if (tetrisGame.GetPlayState() == PS_Ready)
-        readyShow.Render((ScreenWidth - readyShow.GetWidth()) / 2, (ScreenHeight - readyShow.GetHeight()) / 2);
+        readyShow.Render((screenWidth - readyShow.GetWidth()) / 2, (screenHeight - readyShow.GetHeight()) / 2);
 
     if (tetrisGame.GetTotalClearedLines() >= 40)
     {
         sprintTimer.Stop();
-        sprintCompleteShow.Render((ScreenWidth - sprintCompleteShow.GetWidth()) / 2, (ScreenHeight - sprintCompleteShow.GetHeight()) / 2);
+        sprintCompleteShow.Render((screenWidth - sprintCompleteShow.GetWidth()) / 2, (screenHeight - sprintCompleteShow.GetHeight()) / 2);
         tetrisGame.Win();
     }
 }

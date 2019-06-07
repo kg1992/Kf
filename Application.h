@@ -13,26 +13,33 @@ enum GameState
     GS_Infinite,
 };
 
+struct Options
+{
+    int resolutionIndex = 0;
+};
+
 class Application
 {
 public:
     static int Start();
     static void Quit();
+    static void ResizeWindow(int width, int height);
+    static int GetClientAreaWidth();
+    static int GetClientAreaHeight();
 
     static FiniteStateMachine gsm;
     static std::shared_ptr<State> pStateMainMenu;
     static std::shared_ptr<State> pStateSprintMode;
     static std::shared_ptr<State> pStateInfiniteMode;
+    static std::shared_ptr<State> pStateOptions;
     static const Uint8* state;
+    static SDL_Window* window;
+    static Options options;
 
 private:
     static bool quit;
 };
 
-// window client area width in pixel
-const int ScreenWidth = 800;
-// window client area height in pixel
-const int ScreenHeight = 600;
 // minimum ui textbox height
 const int MinTextBoxHeight = 28;
 // white color

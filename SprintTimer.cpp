@@ -1,38 +1,38 @@
 #include "SprintTimer.h"
 
 SprintTimer::SprintTimer()
-    : stop(true)
-    , sprintClock()
-    , sprintBegin()
-    , sprintNow()
-    , time({ 0,0,0,0 })
+    : m_stop(true)
+    , m_sprintClock()
+    , m_sprintBegin()
+    , m_sprintNow()
+    , m_time({ 0,0,0,0 })
 {
 }
 
 void SprintTimer::Start()
 {
-    if (stop)
+    if (m_stop)
     {
-        sprintBegin = sprintClock.now();
-        stop = false;
+        m_sprintBegin = m_sprintClock.now();
+        m_stop = false;
     }
 }
 
 void SprintTimer::Stop()
 {
-    if (!stop)
+    if (!m_stop)
     {
-        sprintNow = sprintClock.now();
-        stop = true;
+        m_sprintNow = m_sprintClock.now();
+        m_stop = true;
     }
 }
 
 TimerTime SprintTimer::GetTimerTime()
 {
-    if (!stop)
-        sprintNow = sprintClock.now();
+    if (!m_stop)
+        m_sprintNow = m_sprintClock.now();
 
-    auto duration = sprintNow - sprintBegin;
+    auto duration = m_sprintNow - m_sprintBegin;
     TimerTime tt = { 0,0,0 };
     long long total = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     tt.msec = total % 1000;

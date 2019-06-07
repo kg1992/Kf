@@ -16,11 +16,11 @@ public:
     TimerTime GetTimerTime();
 
 private:
-    bool stop;
-    std::chrono::high_resolution_clock sprintClock;
-    std::chrono::high_resolution_clock::time_point sprintBegin;
-    std::chrono::high_resolution_clock::time_point sprintNow;
-    TimerTime time;
+    bool m_stop;
+    std::chrono::high_resolution_clock m_sprintClock;
+    std::chrono::high_resolution_clock::time_point m_sprintBegin;
+    std::chrono::high_resolution_clock::time_point m_sprintNow;
+    TimerTime m_time;
 };
 
 #endif

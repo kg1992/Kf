@@ -27,7 +27,7 @@ StateInfiniteMode::StateInfiniteMode(SDL_Renderer* pRenderer, TetrisRenderer& te
 
     TetrisRenderDesc desc = { 0 };
     // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
-    desc.pxPlayFieldX = (ScreenWidth - playField.GetWidth() * PxBlockSize) / 2;
+    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - playField.GetWidth() * PxBlockSize) / 2;
     // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
     desc.pxPlayFieldY = 100;
     desc.pxHoldX = desc.pxPlayFieldX - 64 - 16;
@@ -89,14 +89,17 @@ void StateInfiniteMode::OnUpdate()
 
 void StateInfiniteMode::OnRender()
 {
+    int screenWidth = Application::GetClientAreaWidth();
+    int screenHeight = Application::GetClientAreaHeight();
+
     tetrisRenderer.DrawTetris(tetrisGame);
 
     infiniteUI.Render();
 
     if (tetrisGame.GetPlayState() == PS_GameOver)
-        gameoverShow.Render((ScreenWidth - gameoverShow.GetWidth()) / 2, (ScreenHeight - gameoverShow.GetHeight()) / 2);
+        gameoverShow.Render((screenWidth - gameoverShow.GetWidth()) / 2, (screenHeight - gameoverShow.GetHeight()) / 2);
     else if (tetrisGame.GetPlayState() == PS_Ready)
-        readyShow.Render((ScreenWidth - readyShow.GetWidth()) / 2, (ScreenHeight - readyShow.GetHeight()) / 2);
+        readyShow.Render((screenWidth - readyShow.GetWidth()) / 2, (screenHeight - readyShow.GetHeight()) / 2);
 }
 
 void StateInfiniteMode::OnSdlEvent(const SDL_Event& e)

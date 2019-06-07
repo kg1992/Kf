@@ -156,6 +156,7 @@
     <ClCompile Include="SprintTimer.cpp" />
     <ClCompile Include="StateInfiniteMode.cpp" />
     <ClCompile Include="StateMainMenu.cpp" />
+    <ClCompile Include="StateOptions.cpp" />
     <ClCompile Include="StateSprintMode.cpp" />
     <ClCompile Include="Tetrimino.cpp" />
     <ClCompile Include="TetrisGame.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="SprintTimer.h" />
     <ClInclude Include="StateInfiniteMode.h" />
     <ClInclude Include="StateMainMenu.h" />
+    <ClInclude Include="StateOptions.h" />
     <ClInclude Include="StateSprintMode.h" />
     <ClInclude Include="Tetrimino.h" />
     <ClInclude Include="TetrisRenderer.h" />

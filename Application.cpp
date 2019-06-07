@@ -21,16 +21,25 @@
 #include "StateMainMenu.h"
 #include "StateSprintMode.h"
 #include "StateInfiniteMode.h"
+#include "StateOptions.h"
 
 FiniteStateMachine Application::gsm;
 std::shared_ptr<State> Application::pStateMainMenu;
 std::shared_ptr<State> Application::pStateSprintMode;
 std::shared_ptr<State> Application::pStateInfiniteMode;
+std::shared_ptr<State> Application::pStateOptions;
 const Uint8* Application::state;
+SDL_Window* Application::window;
+Options Application::options;
 bool Application::quit = false;
 
 const int FontSize = 18;
 TTF_Font* g_pFont = nullptr;
+
+// window client area width in pixel
+const int ScreenWidth = 800;
+// window client area height in pixel
+const int ScreenHeight = 600;
 
 void DisplayDpiAndFontsize(float ptFontSize)
 {
@@ -69,6 +78,8 @@ int Application::Start()
         printf("SDL could not create window");
         return 1;
     }
+
+    Application::window = pWindow;
 
     // Create renderer for window
     SDL_Renderer* pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
@@ -137,6 +148,7 @@ int Application::Start()
     pStateMainMenu.reset(new StateMainMenu(pRenderer));
     pStateSprintMode.reset(new StateSprintMode(pRenderer, tetrisRenderer));
     pStateInfiniteMode.reset(new StateInfiniteMode(pRenderer, tetrisRenderer));
+    pStateOptions.reset(new StateOptions(pRenderer));
 
     gsm.SetState(&*pStateMainMenu);
 
@@ -201,4 +213,25 @@ int Application::Start()
 void Application::Quit()
 {
     quit = true;
+}
+
+void Application::ResizeWindow(int width, int height)
+{
+    SDL_SetWindowSize(window, width, height);
+}
+
+int Application::GetClientAreaWidth()
+{
+    SDL_Renderer* pRenderer = SDL_GetRenderer(window);
+    int w, h;
+    SDL_GetRendererOutputSize(pRenderer, &w, &h);
+    return w;
+}
+
+int Application::GetClientAreaHeight()
+{
+    SDL_Renderer* pRenderer = SDL_GetRenderer(window);
+    int w, h;
+    SDL_GetRendererOutputSize(pRenderer, &w, &h);
+    return h;
 }
