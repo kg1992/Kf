@@ -1,4 +1,5 @@
 #include "TetrisGame.h"
+#include <ctime>
 #include <SDL.h>
 
 Tetrimino MakeTetrimino(TetriminoType type, int x, int y)
@@ -21,7 +22,8 @@ void TetrisGame::Reset()
 {
     level = 1;
     hold = TT_End;
-    randomizer.Reset();
+    randomizer.Reset();    
+    randomizer.Seed(static_cast<unsigned int>(std::time(nullptr)));
     scoreKeeper.ResetScore();
     totalClearedLines = 0;
     playField.ClearPlayfield();

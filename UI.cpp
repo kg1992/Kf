@@ -5,11 +5,10 @@
 
 extern TTF_Font* g_pFont;
 
-UINumberBox::UINumberBox(SDL_Renderer* pRenderer, int initialValue, std::function<int(void)> fpTargetGetter, int minHeight)
+UINumberBox::UINumberBox(int initialValue, std::function<int(void)> fpTargetGetter, int minHeight)
     : mLast(initialValue)
-    , mTexture(pRenderer)
+    , mTexture(Application::GetWindowRenderer())
     , mTargetGetter(fpTargetGetter)
-
 {
     mTexture.LoadFromRenderedText(std::to_string(initialValue), g_pFont, ColorBlack);
     SetMinHeight(minHeight);
@@ -37,51 +36,103 @@ int UINumberBox::GetHeight()
     return std::max(GetMinHeight(), mTexture.GetHeight());
 }
 
-UITextBox::UITextBox(SDL_Renderer* pRenderer, const std::string& content, SDL_Color color)
-    : mTexture(pRenderer)
+const SDL_Color UITextBox::ColorTransparent = { 0,0,0,SDL_ALPHA_TRANSPARENT };
+
+UITextBox::UITextBox()
+    : m_texture(Application::GetWindowRenderer())
+    , m_u8Content()
+    , m_textColor(ColorBlack)
+    , m_backgroundColor(ColorTransparent)
 {
-    mTexture.LoadFromRenderedText(content, g_pFont, color);
+
 }
 
-UITextBox::UITextBox(SDL_Renderer* pRenderer, const std::wstring& content, SDL_Color color)
-    : mTexture(pRenderer)
+UITextBox::UITextBox(const std::string& content, SDL_Color color, SDL_Color backgroundColor)
+    : m_texture(Application::GetWindowRenderer())
+    , m_u8Content(content)
+    , m_textColor(color)
+    , m_backgroundColor(backgroundColor)
 {
-    mTexture.LoadFromRenderedText(Utf16wstrToUtf8str(content), g_pFont, color);
+    m_texture.LoadFromRenderedText(content, g_pFont, color);
 }
 
-void UITextBox::SetContent(const std::string& content, SDL_Color color)
+UITextBox::UITextBox(const std::wstring& content, SDL_Color color, SDL_Color backgroundColor)
+    : m_texture(Application::GetWindowRenderer())
+    , m_u8Content(Utf16wstrToUtf8str(content))
+    , m_textColor(color)
+    , m_backgroundColor(backgroundColor)
 {
-    mTexture.LoadFromRenderedText(content, g_pFont, color);
+    m_texture.LoadFromRenderedText(m_u8Content, g_pFont, color);
 }
 
-void UITextBox::SetContent(const std::wstring& content, SDL_Color color)
+void UITextBox::SetContent(const std::string& content)
 {
-    SetContent(Utf16wstrToUtf8str(content), color);
+    m_u8Content = content;
+    Refresh();
+}
+
+void UITextBox::SetContent(const std::wstring& content)
+{
+    m_u8Content = Utf16wstrToUtf8str(content);
+    Refresh();
 }
 
 void UITextBox::FreeContent()
 {
-    mTexture.Free();
+    m_texture.Free();
 }
 
 UITextBox::~UITextBox()
 {
-    mTexture.Free();
+    m_texture.Free();
 }
 
 void UITextBox::Render()
 {
-    mTexture.Render(GetX(), GetY());
+    SDL_Renderer* pRenderer = Application::GetWindowRenderer();
+    if (std::memcmp(&m_backgroundColor, &ColorTransparent, sizeof(m_backgroundColor)))
+    {
+        SDL_Rect rect = { GetX(), GetY(), GetWidth(), GetHeight() };
+        SDL_SetRenderDrawColor(pRenderer, m_backgroundColor.r, m_backgroundColor.g, m_backgroundColor.b, m_backgroundColor.a);
+        SDL_RenderFillRect(pRenderer, &rect);
+    }
+    m_texture.Render(GetX(), GetY());
 }
 
 int UITextBox::GetWidth()
 {
-    return std::max(GetMinWidth(), mTexture.GetWidth());
+    return std::max(GetMinWidth(), m_texture.GetWidth());
 }
 
 int UITextBox::GetHeight()
 {
-    return std::max(GetMinHeight(), mTexture.GetHeight());
+    return std::max(GetMinHeight(), m_texture.GetHeight());
+}
+
+SDL_Color& UITextBox::GetTextColor()
+{
+    return m_textColor;
+}
+
+void UITextBox::SetTextColor(const SDL_Color& color)
+{
+    m_textColor = color;
+    Refresh();
+}
+
+SDL_Color& UITextBox::GetBackgroundColor()
+{
+    return m_backgroundColor;
+}
+
+void UITextBox::SetBackgroundColor(const SDL_Color& color)
+{
+    m_backgroundColor = color;
+}
+
+void UITextBox::Refresh()
+{
+    m_texture.LoadFromRenderedText(m_u8Content, g_pFont, m_textColor);
 }
 
 void UIStack::AddUI(std::shared_ptr<UI> ui)
@@ -130,13 +181,13 @@ void UIStack::Clear()
     m_children.clear();
 }
 
-UITimer::UITimer(SDL_Renderer* pRenderer, std::function<TimerTime()> fpTargetGetter, SDL_Color color, int minHeight)
+UITimer::UITimer(std::function<TimerTime()> fpTargetGetter, SDL_Color color, int minHeight)
     : mColor(color)
-    , mTexSep(pRenderer)
-    , mTexHour(pRenderer)
-    , mTexMin(pRenderer)
-    , mTexSec(pRenderer)
-    , mTexMsec(pRenderer)
+    , mTexSep(Application::GetWindowRenderer())
+    , mTexHour(Application::GetWindowRenderer())
+    , mTexMin(Application::GetWindowRenderer())
+    , mTexSec(Application::GetWindowRenderer())
+    , mTexMsec(Application::GetWindowRenderer())
     , mLast({ -1,-1,-1,-1 })
     , mTargetGetter(fpTargetGetter)
 {

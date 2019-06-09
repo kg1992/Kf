@@ -62,6 +62,12 @@ const int MinTextBoxHeight = 28;
 const SDL_Color ColorWhite = { 0xff, 0xff, 0xff };
 // black color
 const SDL_Color ColorBlack = { 0x00, 0x00, 0x00 };
+const SDL_Color ColorDarkBrown = { 75, 59, 66 };
+const SDL_Color ColorGrayBrown = {156, 132, 129};
+const SDL_Color ColorBeige = {217, 194, 186};
+const SDL_Color ColorDarkYellow = {226, 203, 176};
+const SDL_Color ColorDarkBlue = {152, 174, 182};
+const SDL_Color ColorTransparent = { 0,0,0,SDL_ALPHA_TRANSPARENT };
 // Block size in pixel
 const int PxBlockSize = 16;
 

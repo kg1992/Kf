@@ -146,10 +146,10 @@ int Application::Start()
 
     TetrisRenderer tetrisRenderer(minoRenderer);
 
-    pStateMainMenu.reset(new StateMainMenu(pRenderer));
+    pStateMainMenu.reset(new StateMainMenu());
     pStateSprintMode.reset(new StateSprintMode(tetrisRenderer));
-    pStateInfiniteMode.reset(new StateInfiniteMode(pRenderer, tetrisRenderer));
-    pStateOptions.reset(new StateOptions(pRenderer));
+    pStateInfiniteMode.reset(new StateInfiniteMode(tetrisRenderer));
+    pStateOptions.reset(new StateOptions());
 
     gsm.SetState(&*pStateMainMenu);
 

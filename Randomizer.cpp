@@ -56,7 +56,6 @@ void Randomizer::Deserialize(std::istream& is)
     m_queue.resize(queueSize);
     is.read(reinterpret_cast<char*>(m_queue.data()), static_cast<std::streamsize>(sizeof(m_queue[0])) * queueSize);
 
-
     int srngSize = 0;
     is.read(reinterpret_cast<char*>(&srngSize), sizeof(srngSize));
     std::vector<char> vrng;
@@ -70,4 +69,9 @@ void Randomizer::Deserialize(std::istream& is)
 void Randomizer::Reset()
 {
     m_queue.clear();
+}
+
+void Randomizer::Seed(unsigned int seed)
+{
+    m_rng.seed(seed);
 }

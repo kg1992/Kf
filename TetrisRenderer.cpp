@@ -19,7 +19,7 @@ MinoRenderer::MinoRenderer(SDL_Renderer* pRenderer)
 
 void MinoRenderer::Load()
 {
-    m_minoTexture.LoadFromFile("MInos.png");
+    m_minoTexture.Load("MInos.png");
 }
 
 void MinoRenderer::DrawMino(Block block, SDL_Rect* pRect)

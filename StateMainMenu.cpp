@@ -2,8 +2,7 @@
 #include <SDL_mixer.h>
 #include "Application.h"
 
-StateMainMenu::StateMainMenu(SDL_Renderer* pRenderer)
-    : m_pRenderer(pRenderer)
+StateMainMenu::StateMainMenu()
 {
 }
 
@@ -11,11 +10,11 @@ void StateMainMenu::OnStart()
 {
     mainMenu.Clear();
     mainMenu.SetXy(10, 10);
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Top), ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Infinite), ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Sprint), ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Options), ColorBlack)));
-    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(m_pRenderer, Application::GetString(StringTable::SI_MainMenu_Quit), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Top), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Infinite), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Sprint), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Options), ColorBlack)));
+    mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Quit), ColorBlack)));
     mainMenu.Render();
 }
 

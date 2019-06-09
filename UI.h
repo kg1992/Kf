@@ -48,7 +48,7 @@ private:
 class UINumberBox : public UI
 {
 public:
-    UINumberBox(SDL_Renderer* pRenderer, int initialValue, std::function<int(void)> fpTargetGetter, int minHeight);
+    UINumberBox(int initialValue, std::function<int(void)> fpTargetGetter, int minHeight);
 
     void Render() override;
 
@@ -67,12 +67,17 @@ private:
 class UITextBox : public UI
 {
 public:
-    UITextBox(SDL_Renderer* pRenderer, const std::string& content, SDL_Color color);
-    UITextBox(SDL_Renderer* pRenderer, const std::wstring& content, SDL_Color color);
+    static const SDL_Color ColorTransparent;
 
-    void SetContent(const std::string& content, SDL_Color color);
+    UITextBox();
 
-    void SetContent(const std::wstring& content, SDL_Color color);
+    UITextBox(const std::string& content, SDL_Color color, SDL_Color backgroundColor = ColorTransparent);
+
+    UITextBox(const std::wstring& content, SDL_Color color, SDL_Color backgroundColor = ColorTransparent);
+
+    void SetContent(const std::string& content);
+
+    void SetContent(const std::wstring& content);
 
     void FreeContent();
 
@@ -84,8 +89,21 @@ public:
 
     int GetHeight() override;
 
+    SDL_Color& GetTextColor();
+
+    void SetTextColor(const SDL_Color& color);
+
+    SDL_Color& GetBackgroundColor();
+
+    void SetBackgroundColor(const SDL_Color& color);
+
 private:
-    Texture mTexture;
+    Texture m_texture;
+    std::string m_u8Content;
+    SDL_Color m_textColor;
+    SDL_Color m_backgroundColor;
+
+    void Refresh();
 };
 
 class UIStack : public UI
@@ -108,7 +126,7 @@ private:
 class UITimer : public UI
 {
 public:
-    UITimer(SDL_Renderer* pRenderer, std::function<TimerTime()> fpTargetGetter, SDL_Color color, int minHeight);
+    UITimer(std::function<TimerTime()> fpTargetGetter, SDL_Color color, int minHeight);
 
     int GetWidth() override;
 

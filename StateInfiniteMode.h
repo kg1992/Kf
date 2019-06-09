@@ -10,7 +10,7 @@
 class StateInfiniteMode : public State
 {
 public:
-    StateInfiniteMode(SDL_Renderer* pRenderer, TetrisRenderer& tetrisRenderer);
+    StateInfiniteMode(TetrisRenderer& tetrisRenderer);
 
     void OnStart() override;
 
@@ -21,11 +21,12 @@ public:
     void OnSdlEvent(const SDL_Event& e);
 
 private:
-    TetrisGame tetrisGame;
-    TetrisRenderer& tetrisRenderer;
-    Texture readyShow;
-    Texture gameoverShow;
-    UIStack infiniteUI;
+    TetrisGame m_tetrisGame;
+    TetrisRenderer& m_tetrisRenderer;
+    Texture m_readyShow;
+    Texture m_gameoverShow;
+    UIStack m_infiniteUI;
+    std::shared_ptr<UITextBox> m_bonusShow;
 };
 
 

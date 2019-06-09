@@ -7,7 +7,7 @@
 class StateMainMenu : public State
 {
 public:
-    StateMainMenu(SDL_Renderer* pRenderer);
+    StateMainMenu();
 
     void OnStart() override;
 
@@ -16,7 +16,6 @@ public:
     void OnSdlEvent(const SDL_Event& e) override;
 
 private:
-    SDL_Renderer* m_pRenderer;
     UIStack mainMenu;
 };
 

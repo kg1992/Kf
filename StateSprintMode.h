@@ -25,9 +25,9 @@ private:
     TetrisRenderer& tetrisRenderer;
     SprintTimer sprintTimer;
     UIStack sprintUI;
-    Texture readyShow;
-    Texture gameoverShow;
-    Texture sprintCompleteShow;
+    UITextBox readyShow;
+    UITextBox gameoverShow;
+    UITextBox sprintCompleteShow;
 };
 
 #endif

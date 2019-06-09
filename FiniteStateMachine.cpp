@@ -1,7 +1,5 @@
 #include "FiniteStateMachine.h"
 
-const SDL_Color ColorBlack = { 0x00, 0x00, 0x00 };
-
 FiniteStateMachine::FiniteStateMachine()
     : m_pCurr(nullptr)
 {

@@ -4,21 +4,21 @@
 #include "UI.h"
 #include "Application.h"
 
-StateOptions::StateOptions(SDL_Renderer* pRenderer)
+StateOptions::StateOptions()
 {
     const SDL_Color ColorBlack = {0,0,0};
     std::shared_ptr<UIStack> stack(new UIStack);
     
-    m_changeResolutioniBox.reset(new UITextBox(pRenderer, "PLACEHOLDER", ColorBlack));
+    m_changeResolutioniBox.reset(new UITextBox("_", ColorBlack));
     stack->AddUI(m_changeResolutioniBox);
 
-    m_toggleFullscreenBox.reset(new UITextBox(pRenderer, "PLACEHOLDER", ColorBlack));
+    m_toggleFullscreenBox.reset(new UITextBox("_", ColorBlack));
     stack->AddUI(m_toggleFullscreenBox);
 
-    m_changeLanguageBox.reset(new UITextBox(pRenderer, "PLACEHOLDER", ColorBlack));
+    m_changeLanguageBox.reset(new UITextBox("_", ColorBlack));
     stack->AddUI(m_changeLanguageBox);
 
-    m_quitBox.reset(new UITextBox(pRenderer, "PLACEHOLDER", ColorBlack));
+    m_quitBox.reset(new UITextBox("_", ColorBlack));
     stack->AddUI(m_quitBox);
 
     stack->SetXy(10, 10);
@@ -97,11 +97,11 @@ void StateOptions::OnSdlEvent(const SDL_Event& e)
 
 void StateOptions::RefreshTexts()
 {
-    m_changeResolutioniBox->SetContent(Application::GetFormattedString(StringTable::SI_Options_Resolution, Application::GetClientAreaWidth(), Application::GetClientAreaHeight()), ColorBlack);
+    m_changeResolutioniBox->SetContent(Application::GetFormattedString(StringTable::SI_Options_Resolution, Application::GetClientAreaWidth(), Application::GetClientAreaHeight()));
 
-    m_toggleFullscreenBox->SetContent(Application::GetString(StringTable::SI_Options_Toggle_Fullscreen), ColorBlack);
+    m_toggleFullscreenBox->SetContent(Application::GetString(StringTable::SI_Options_Toggle_Fullscreen));
 
-    m_changeLanguageBox->SetContent(Application::GetFormattedString(StringTable::SI_Options_Language, Application::options.language.c_str()), ColorBlack);
+    m_changeLanguageBox->SetContent(Application::GetFormattedString(StringTable::SI_Options_Language, Application::options.language.c_str()));
 
-    m_quitBox->SetContent(Application::GetString(StringTable::SI_Options_Return), ColorBlack);
+    m_quitBox->SetContent(Application::GetString(StringTable::SI_Options_Return));
 }

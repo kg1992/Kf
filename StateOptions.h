@@ -7,7 +7,7 @@
 class StateOptions : public State
 {
 public:
-    StateOptions(SDL_Renderer* pRenderer);
+    StateOptions();
 
     void OnRender();
 

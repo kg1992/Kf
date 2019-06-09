@@ -8,9 +8,9 @@ StateSprintMode::StateSprintMode(TetrisRenderer& tetrisRenderer)
     : tetrisGame(10, 22, 3, 19)
     , tetrisRenderer(tetrisRenderer)
     , sprintTimer()
-    , readyShow(Application::GetWindowRenderer())
-    , gameoverShow(Application::GetWindowRenderer())
-    , sprintCompleteShow(Application::GetWindowRenderer())
+    , readyShow(Application::GetString(StringTable::SI_Ready), ColorDarkBrown, ColorDarkYellow)
+    , gameoverShow(Application::GetString(StringTable::SI_GameOver), ColorDarkBrown, ColorDarkYellow)
+    , sprintCompleteShow(Application::GetString(StringTable::SI_Sprint_Complete), ColorDarkBrown, ColorDarkYellow)
 {
 }
 
@@ -19,23 +19,22 @@ void StateSprintMode::OnStart()
     PlayField& playField = tetrisGame.GetPlayField();
 
     sprintUI.Clear();
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetWindowRenderer(), Application::GetString(StringTable::SI_LineClear), ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(Application::GetWindowRenderer(), 0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinTextBoxHeight)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetWindowRenderer(), Application::GetString(StringTable::SI_Score), ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(Application::GetWindowRenderer(), 0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinTextBoxHeight)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetWindowRenderer(), Application::GetString(StringTable::SI_Time), ColorBlack)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(Application::GetWindowRenderer(), std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorBlack, MinTextBoxHeight)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_LineClear), ColorDarkBrown)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinTextBoxHeight)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Score), ColorDarkBrown)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinTextBoxHeight)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Time), ColorDarkBrown)));
+    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorDarkBlue, MinTextBoxHeight)));
 
-    readyShow.LoadFromRenderedText(Utf16wstrToUtf8str(Application::GetString(StringTable::SI_Ready)), g_pFont, ColorBlack);
-    gameoverShow.LoadFromRenderedText(Utf16wstrToUtf8str(Application::GetString(StringTable::SI_GameOver)), g_pFont, ColorBlack);
-    sprintCompleteShow.LoadFromRenderedText(Utf16wstrToUtf8str(Application::GetString(StringTable::SI_Sprint_Complete)), g_pFont, ColorBlack);
+    readyShow.SetContent(Application::GetString(StringTable::SI_Ready));
+    gameoverShow.SetContent(Application::GetString(StringTable::SI_GameOver));
+    sprintCompleteShow.SetContent(Application::GetString(StringTable::SI_Sprint_Complete));
 
     TetrisRenderDesc desc = { 0 };
-    // Pivot point of the playfield; left bottom coner of the field. in screen space coordinate.
+    desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 16.f));
     desc.pxPlayFieldX = (Application::GetClientAreaWidth() - tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;
-    // Pivot point of the playfield; Left bottom corner of the field. in screen space coordinate.
     desc.pxPlayFieldY = (Application::GetClientAreaHeight() - tetrisGame.GetPlayField().GetHeight() * desc.pxBlockSize) / 2;
-    desc.pxHoldX = desc.pxPlayFieldX - 64 - 16;
+    desc.pxHoldX = desc.pxPlayFieldX - desc.pxBlockSize * 5;
     desc.pxHoldY = desc.pxPlayFieldY;
     desc.nextCount = 5;
     for (int i = 0; i < 5; ++i)
@@ -43,9 +42,10 @@ void StateSprintMode::OnStart()
         desc.pxNextX[i] = desc.pxPlayFieldX + desc.pxBlockSize * 11;
         desc.pxNextY[i] = desc.pxPlayFieldY + i * desc.pxBlockSize * 4;
     }
-
     desc.visibleLines = 20;
+
     tetrisRenderer.SetTetrisRenderDesc(desc);
+
     sprintUI.SetXy(desc.pxPlayFieldX - sprintUI.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
 }
 
@@ -87,15 +87,20 @@ void StateSprintMode::OnRender()
 
     if (tetrisGame.GetPlayState() == PS_GameOver) {
         sprintTimer.Stop();
-        gameoverShow.Render((screenWidth - gameoverShow.GetWidth()) / 2, (screenHeight - gameoverShow.GetHeight()) / 2);
+        gameoverShow.SetXy((screenWidth - gameoverShow.GetWidth()) / 2, (screenHeight - gameoverShow.GetHeight()) / 2);
+        gameoverShow.Render();
     }
     else if (tetrisGame.GetPlayState() == PS_Ready)
-        readyShow.Render((screenWidth - readyShow.GetWidth()) / 2, (screenHeight - readyShow.GetHeight()) / 2);
+    {
+        readyShow.SetXy((screenWidth - readyShow.GetWidth()) / 2, (screenHeight - readyShow.GetHeight()) / 2);
+        readyShow.Render();
+    }
 
-    if (tetrisGame.GetTotalClearedLines() >= 40)
+    if (tetrisGame.GetTotalClearedLines() >= 5)
     {
         sprintTimer.Stop();
-        sprintCompleteShow.Render((screenWidth - sprintCompleteShow.GetWidth()) / 2, (screenHeight - sprintCompleteShow.GetHeight()) / 2);
+        sprintCompleteShow.SetXy((screenWidth - sprintCompleteShow.GetWidth()) / 2, (screenHeight - sprintCompleteShow.GetHeight()) / 2);
+        sprintCompleteShow.Render();
         tetrisGame.Win();
     }
 }

@@ -18,89 +18,46 @@ Texture::~Texture()
     Free();
 }
 
-bool Texture::LoadFromFile(std::string path)
+bool Texture::Load(std::string path)
 {
-    //Get rid of preexisting texture
     Free();
 
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-    if (loadedSurface == NULL)
-    {
-        printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
-    }
-    else
-    {
-        //Color key image
-        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF));
-
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface(m_pRenderer, loadedSurface);
-        if (newTexture == NULL)
-        {
-            printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-        }
-        else
-        {
-            //Get image dimensions
-            m_width = loadedSurface->w;
-            m_height = loadedSurface->h;
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface);
-    }
-
-    //Return success
-    m_pTexture = newTexture;
-    return m_pTexture != NULL;
+    return m_pTexture = IMG_LoadTexture(m_pRenderer, path.c_str());
 }
 
 bool Texture::LoadFromRenderedText(std::string textureText, TTF_Font* pFont, SDL_Color textColor)
 {
-    //Get rid of preexisting texture
     Free();
 
-    //Render text surface
-    //SDL_Surface* textSurface = TTF_RenderUTF8_Solid(pFont, textureText.c_str(), textColor);
     SDL_Surface* textSurface = TTF_RenderUTF8_Blended(pFont, textureText.c_str(), textColor);
     if (textSurface == NULL)
     {
-        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+        printf("TTF_RenderUTF8_Blended failed: %s\n", TTF_GetError());
+        return false;
     }
-    else
+    
+    m_pTexture = SDL_CreateTextureFromSurface(m_pRenderer, textSurface);
+    if (m_pTexture == nullptr)
     {
-        //Create texture from surface pixels
-        m_pTexture = SDL_CreateTextureFromSurface(m_pRenderer, textSurface);
-        if (m_pTexture == NULL)
-        {
-            printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
-        }
-        else
-        {
-            //Get image dimensions
-            m_width = textSurface->w;
-            m_height = textSurface->h;
-        }
-
-        //Get rid of old surface
-        SDL_FreeSurface(textSurface);
+        printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+        return false;
     }
 
-    //Return success
-    return m_pTexture != NULL;
+    m_width = textSurface->w;
+    m_height = textSurface->h;
+
+    SDL_FreeSurface(textSurface);
+
+    return m_pTexture != nullptr;
 }
 
 void Texture::Free()
 {
     //Free texture if it exists
-    if (m_pTexture != NULL)
+    if (m_pTexture != nullptr)
     {
         SDL_DestroyTexture(m_pTexture);
-        m_pTexture = NULL;
+        m_pTexture = nullptr;
         m_width = 0;
         m_height = 0;
     }

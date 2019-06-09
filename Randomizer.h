@@ -21,6 +21,8 @@ public:
 
     void Reset();
 
+    void Seed(unsigned int seed);
+
 private:
     std::vector<TetriminoType> m_queue;
     std::minstd_rand m_rng;
