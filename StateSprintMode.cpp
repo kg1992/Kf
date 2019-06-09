@@ -96,7 +96,7 @@ void StateSprintMode::OnRender()
         m_uiReady.Render();
     }
 
-    if (m_tetrisGame.GetTotalClearedLines() >= 5)
+    if (m_tetrisGame.GetTotalClearedLines() >= 40)
     {
         m_sprintTimer.Stop();
         m_uiSprintComplete.SetXy((screenWidth - m_uiSprintComplete.GetWidth()) / 2, (screenHeight - m_uiSprintComplete.GetHeight()) / 2);
