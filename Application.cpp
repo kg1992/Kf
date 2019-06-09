@@ -65,6 +65,13 @@ Mix_Chunk* g_pWavDrop;
 
 int Application::Start()
 {
+    if (IsWriteEnabled())
+    {
+        auto path = Application::GetPrefPath() / "options.txt";
+        if(filesystem::exists(path))
+            Application::options.Load(Application::GetPrefPath() / "options.txt");
+    }
+
     // Iniitlaize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     {
@@ -73,7 +80,7 @@ int Application::Start()
     }
 
     // The window we will be rendering to
-    SDL_Window* pWindow = SDL_CreateWindow("KFTetris v0.0.2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, 0);
+    SDL_Window* pWindow = SDL_CreateWindow("KFTetris v0.0.2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options.resolution.first, options.resolution.second, 0);
     if (!pWindow)
     {
         printf("SDL could not create window");
@@ -207,6 +214,9 @@ int Application::Start()
     IMG_Quit();
 
     SDL_Quit();
+
+    if( IsWriteEnabled() )
+        Application::options.Save(Application::GetPrefPath() / "options.txt");
 
     return 0;
 }

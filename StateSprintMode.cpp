@@ -31,7 +31,7 @@ void StateSprintMode::OnStart()
     m_uiSprintComplete.SetContent(Application::GetString(StringTable::SI_Sprint_Complete));
 
     TetrisRenderDesc desc = { 0 };
-    desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 16.f));
+    desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 24.f));
     desc.pxPlayFieldX = (Application::GetClientAreaWidth() - m_tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;
     desc.pxPlayFieldY = (Application::GetClientAreaHeight() - m_tetrisGame.GetPlayField().GetHeight() * desc.pxBlockSize) / 2;
     desc.pxHoldX = desc.pxPlayFieldX - desc.pxBlockSize * 5;

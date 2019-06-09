@@ -34,16 +34,16 @@ void StateInfiniteMode::OnStart()
     m_uiGameOver.SetContent(Application::GetString(StringTable::SI_GameOver));
 
     TetrisRenderDesc desc = { 0 };
-    desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 16.f));
-    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - m_tetrisGame.GetPlayField().GetWidth() * PxBlockSize) / 2;
+    desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 24.f));
+    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - m_tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;
     desc.pxPlayFieldY = 100;
-    desc.pxHoldX = desc.pxPlayFieldX - 64 - 16;
+    desc.pxHoldX = desc.pxPlayFieldX - desc.pxBlockSize * 5;
     desc.pxHoldY = desc.pxPlayFieldY;
     desc.nextCount = 5;
     for (int i = 0; i < 5; ++i)
     {
-        desc.pxNextX[i] = desc.pxPlayFieldX + PxBlockSize * 11;
-        desc.pxNextY[i] = desc.pxPlayFieldY + i * 64;
+        desc.pxNextX[i] = desc.pxPlayFieldX + desc.pxBlockSize * 11;
+        desc.pxNextY[i] = desc.pxPlayFieldY + i * desc.pxBlockSize * 4;
     }
 
     desc.visibleLines = 20;
@@ -68,6 +68,9 @@ void StateInfiniteMode::OnUpdate()
                 msg = "B2B ";
             msg += lci.msg;
             m_uiBonus->SetContent(msg);
+            
+            m_uiInfinite.SetX(m_tetrisRenderer.GetTetrisRenderDesc().pxPlayFieldX - m_uiInfinite.GetWidth());
+            m_uiInfinite.SetY(m_tetrisRenderer.GetTetrisRenderDesc().pxHoldY + m_tetrisRenderer.GetTetrisRenderDesc().pxBlockSize * 5);
         }
     }
     break;

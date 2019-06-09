@@ -40,7 +40,8 @@ void Options::Save(const filesystem::path& fileName)
 void Options::Save(std::ostream& os)
 {
     os << "[options]" << std::endl
-        << "resolution=" << resolutionIndex << std::endl
+        << "resolutionX=" << resolution.first << std::endl
+        << "resolutionY=" << resolution.second << std::endl
         << "language=" << language << std::endl;
 }
 
@@ -75,9 +76,14 @@ void Options::Load(std::istream& s)
             value = s.substr(split + 1);
         }
 
-        if (key == "resolution")
+        if (key == "resolutionX")
         {
-            resolutionIndex = std::stoi(value.c_str());
+            resolution.first = std::stoi(value.c_str());
+        }
+
+        if (key == "resolutionY")
+        {
+            resolution.second = std::stoi(value.c_str());
         }
 
         if (key == "language")

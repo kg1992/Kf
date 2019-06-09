@@ -68,8 +68,6 @@ const SDL_Color ColorBeige = {217, 194, 186};
 const SDL_Color ColorDarkYellow = {226, 203, 176};
 const SDL_Color ColorDarkBlue = {152, 174, 182};
 const SDL_Color ColorTransparent = { 0,0,0,SDL_ALPHA_TRANSPARENT };
-// Block size in pixel
-const int PxBlockSize = 16;
 
 extern Mix_Chunk* g_pWavLevelup;
 extern Mix_Chunk* g_pWavExplosion;

@@ -7,7 +7,7 @@ namespace filesystem = std::experimental::filesystem;
 
 struct Options
 {
-    int resolutionIndex = 0;
+    std::pair<int, int> resolution = {800, 600};
     std::string language = "en";
 
     // ref : https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes

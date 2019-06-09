@@ -54,8 +54,10 @@ void StateOptions::OnSdlEvent(const SDL_Event& e)
                 if (std::find(resolutions.begin(), resolutions.end(), resolution) == resolutions.end())
                     resolutions.insert(resolutions.begin(), resolution);
             }
-            int& ri = Application::options.resolutionIndex;
+            auto iter = std::find(resolutions.begin(), resolutions.end(), Application::options.resolution);
+            int ri = (iter != resolutions.end() ? std::distance(resolutions.begin(), iter) : 0);
             ri = (ri + 1) % resolutions.size();
+            Application::options.resolution = resolutions[ri];
             Application::ResizeWindow(resolutions[ri].first, resolutions[ri].second);
             RefreshTexts();
             break;
@@ -81,13 +83,6 @@ void StateOptions::OnSdlEvent(const SDL_Event& e)
             break;
         case SDLK_4:
             Application::gsm.SetState(&*Application::pStateMainMenu); 
-            break;
-
-        case SDLK_s:
-            Application::options.Save(Application::GetPrefPath() / "options.txt");
-            break;
-        case SDLK_l:
-            Application::options.Load(Application::GetPrefPath() / "options.txt");
             break;
         default:
             break;
