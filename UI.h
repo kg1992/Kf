@@ -133,14 +133,14 @@ public:
     void Render() override;
 
 private:
-    SDL_Color mColor;
-    Texture mTexSep;
-    Texture mTexHour;
-    Texture mTexMin;
-    Texture mTexSec;
-    Texture mTexMsec;
+    SDL_Color m_color;
+    Texture m_texSep;
+    Texture m_texHour;
+    Texture m_texMin;
+    Texture m_texSec;
+    Texture m_texMsec;
     TimerTime mLast;
-    std::function<TimerTime()> mTargetGetter;
+    std::function<TimerTime()> m_fpTargetGetter;
 
     void Refresh();
 };

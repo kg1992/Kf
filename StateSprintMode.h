@@ -21,13 +21,13 @@ public:
     void OnSdlEvent(const SDL_Event& e);
 
 private:
-    TetrisGame tetrisGame;
-    TetrisRenderer& tetrisRenderer;
-    SprintTimer sprintTimer;
-    UIStack sprintUI;
-    UITextBox readyShow;
-    UITextBox gameoverShow;
-    UITextBox sprintCompleteShow;
+    TetrisGame m_tetrisGame;
+    TetrisRenderer& m_tetrisRenderer;
+    SprintTimer m_sprintTimer;
+    UIStack m_uiSprint;
+    UITextBox m_uiReady;
+    UITextBox m_uiGameOver;
+    UITextBox m_uiSprintComplete;
 };
 
 #endif

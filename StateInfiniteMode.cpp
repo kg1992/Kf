@@ -7,8 +7,8 @@
 StateInfiniteMode::StateInfiniteMode(TetrisRenderer& tetrisRenderer)
     : m_tetrisGame(10, 22, 3, 19)
     , m_tetrisRenderer(tetrisRenderer)
-    , m_readyShow(Application::GetWindowRenderer())
-    , m_gameoverShow(Application::GetWindowRenderer())
+    , m_uiReady("", ColorDarkBrown, ColorDarkYellow)
+    , m_uiGameOver("", ColorDarkBrown, ColorDarkYellow)
 {
 }
 
@@ -16,22 +16,22 @@ void StateInfiniteMode::OnStart()
 {
     PlayField& playField = m_tetrisGame.GetPlayField();
 
-    m_infiniteUI.Clear();
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_LineClear), ColorDarkBrown)));
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetTotalClearedLines, &m_tetrisGame), MinTextBoxHeight)));
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Level), ColorDarkBrown)));
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetLevel, &m_tetrisGame), MinTextBoxHeight)));
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Bonus), ColorDarkBrown)));
-    m_bonusShow.reset(new UITextBox("_", ColorDarkBrown));
-    m_bonusShow->SetMinHeight(MinTextBoxHeight);
-    m_infiniteUI.AddUI(m_bonusShow);
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Combo), ColorDarkBrown)));
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetCombo, &m_tetrisGame), MinTextBoxHeight)));
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Score), ColorDarkBrown)));
-    m_infiniteUI.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetScore, &m_tetrisGame), MinTextBoxHeight)));
+    m_uiInfinite.Clear();
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_LineClear), ColorDarkBrown)));
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetTotalClearedLines, &m_tetrisGame), MinTextBoxHeight)));
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Level), ColorDarkBrown)));
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetLevel, &m_tetrisGame), MinTextBoxHeight)));
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Bonus), ColorDarkBrown)));
+    m_uiBonus.reset(new UITextBox("_", ColorDarkBrown));
+    m_uiBonus->SetMinHeight(MinTextBoxHeight);
+    m_uiInfinite.AddUI(m_uiBonus);
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Combo), ColorDarkBrown)));
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetCombo, &m_tetrisGame), MinTextBoxHeight)));
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Score), ColorDarkBrown)));
+    m_uiInfinite.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetScore, &m_tetrisGame), MinTextBoxHeight)));
 
-    m_readyShow.LoadFromRenderedText("Press Space To Start", g_pFont, ColorDarkBrown);
-    m_gameoverShow.LoadFromRenderedText("Game Over! Press R to restart. Press Q to return to main menu.", g_pFont, ColorDarkBrown);
+    m_uiReady.SetContent(Application::GetString(StringTable::SI_Ready));
+    m_uiGameOver.SetContent(Application::GetString(StringTable::SI_GameOver));
 
     TetrisRenderDesc desc = { 0 };
     desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 16.f));
@@ -48,7 +48,7 @@ void StateInfiniteMode::OnStart()
 
     desc.visibleLines = 20;
     m_tetrisRenderer.SetTetrisRenderDesc(desc);
-    m_infiniteUI.SetXy(desc.pxPlayFieldX - m_infiniteUI.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
+    m_uiInfinite.SetXy(desc.pxPlayFieldX - m_uiInfinite.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
 }
 
 void StateInfiniteMode::OnUpdate()
@@ -67,7 +67,7 @@ void StateInfiniteMode::OnUpdate()
             if (result.backToBack)
                 msg = "B2B ";
             msg += lci.msg;
-            m_bonusShow->SetContent(msg);
+            m_uiBonus->SetContent(msg);
         }
     }
     break;
@@ -92,12 +92,18 @@ void StateInfiniteMode::OnRender()
 
     m_tetrisRenderer.DrawTetris(m_tetrisGame);
 
-    m_infiniteUI.Render();
+    m_uiInfinite.Render();
 
     if (m_tetrisGame.GetPlayState() == PS_GameOver)
-        m_gameoverShow.Render((screenWidth - m_gameoverShow.GetWidth()) / 2, (screenHeight - m_gameoverShow.GetHeight()) / 2);
+    {
+        m_uiGameOver.SetXy((screenWidth - m_uiGameOver.GetWidth()) / 2, (screenHeight - m_uiGameOver.GetHeight()) / 2);
+        m_uiGameOver.Render();
+    }
     else if (m_tetrisGame.GetPlayState() == PS_Ready)
-        m_readyShow.Render((screenWidth - m_readyShow.GetWidth()) / 2, (screenHeight - m_readyShow.GetHeight()) / 2);
+    {
+        m_uiReady.SetXy((screenWidth - m_uiReady.GetWidth()) / 2, (screenHeight - m_uiReady.GetHeight()) / 2);
+        m_uiReady.Render();
+    }
 }
 
 void StateInfiniteMode::OnSdlEvent(const SDL_Event& e)

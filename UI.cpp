@@ -53,7 +53,7 @@ UITextBox::UITextBox(const std::string& content, SDL_Color color, SDL_Color back
     , m_textColor(color)
     , m_backgroundColor(backgroundColor)
 {
-    m_texture.LoadFromRenderedText(content, g_pFont, color);
+    Refresh();
 }
 
 UITextBox::UITextBox(const std::wstring& content, SDL_Color color, SDL_Color backgroundColor)
@@ -62,7 +62,7 @@ UITextBox::UITextBox(const std::wstring& content, SDL_Color color, SDL_Color bac
     , m_textColor(color)
     , m_backgroundColor(backgroundColor)
 {
-    m_texture.LoadFromRenderedText(m_u8Content, g_pFont, color);
+    Refresh();
 }
 
 void UITextBox::SetContent(const std::string& content)
@@ -132,7 +132,10 @@ void UITextBox::SetBackgroundColor(const SDL_Color& color)
 
 void UITextBox::Refresh()
 {
-    m_texture.LoadFromRenderedText(m_u8Content, g_pFont, m_textColor);
+    if (m_u8Content.empty())
+        m_texture.Free();
+    else
+        m_texture.LoadFromRenderedText(m_u8Content, g_pFont, m_textColor);
 }
 
 void UIStack::AddUI(std::shared_ptr<UI> ui)
@@ -182,28 +185,28 @@ void UIStack::Clear()
 }
 
 UITimer::UITimer(std::function<TimerTime()> fpTargetGetter, SDL_Color color, int minHeight)
-    : mColor(color)
-    , mTexSep(Application::GetWindowRenderer())
-    , mTexHour(Application::GetWindowRenderer())
-    , mTexMin(Application::GetWindowRenderer())
-    , mTexSec(Application::GetWindowRenderer())
-    , mTexMsec(Application::GetWindowRenderer())
+    : m_color(color)
+    , m_texSep(Application::GetWindowRenderer())
+    , m_texHour(Application::GetWindowRenderer())
+    , m_texMin(Application::GetWindowRenderer())
+    , m_texSec(Application::GetWindowRenderer())
+    , m_texMsec(Application::GetWindowRenderer())
     , mLast({ -1,-1,-1,-1 })
-    , mTargetGetter(fpTargetGetter)
+    , m_fpTargetGetter(fpTargetGetter)
 {
     SetMinHeight(minHeight);
-    mTexSep.LoadFromRenderedText(" : ", g_pFont, color);
+    m_texSep.LoadFromRenderedText(" : ", g_pFont, color);
     Refresh();
 }
 
 int UITimer::GetWidth()
 {
     return
-        mTexSep.GetWidth() * 3 +
-        mTexHour.GetWidth() +
-        mTexMin.GetWidth() +
-        mTexSec.GetWidth() +
-        mTexMsec.GetWidth();
+        m_texSep.GetWidth() * 3 +
+        m_texHour.GetWidth() +
+        m_texMin.GetWidth() +
+        m_texSec.GetWidth() +
+        m_texMsec.GetWidth();
 }
 
 void UITimer::Render()
@@ -212,49 +215,49 @@ void UITimer::Render()
 
     int cursorX = GetX();
     int cursorY = GetY();
-    mTexHour.Render(cursorX, cursorY);
-    cursorX += mTexHour.GetWidth();
-    mTexSep.Render(cursorX, cursorY);
-    cursorX += mTexSep.GetWidth();
-    mTexMin.Render(cursorX, cursorY);
-    cursorX += mTexMin.GetWidth();
-    mTexSep.Render(cursorX, cursorY);
-    cursorX += mTexSep.GetWidth();
-    mTexSec.Render(cursorX, cursorY);
-    cursorX += mTexSec.GetWidth();
-    mTexSep.Render(cursorX, cursorY);
-    cursorX += mTexSep.GetWidth();
-    mTexMsec.Render(cursorX, cursorY);
+    m_texHour.Render(cursorX, cursorY);
+    cursorX += m_texHour.GetWidth();
+    m_texSep.Render(cursorX, cursorY);
+    cursorX += m_texSep.GetWidth();
+    m_texMin.Render(cursorX, cursorY);
+    cursorX += m_texMin.GetWidth();
+    m_texSep.Render(cursorX, cursorY);
+    cursorX += m_texSep.GetWidth();
+    m_texSec.Render(cursorX, cursorY);
+    cursorX += m_texSec.GetWidth();
+    m_texSep.Render(cursorX, cursorY);
+    cursorX += m_texSep.GetWidth();
+    m_texMsec.Render(cursorX, cursorY);
 }
 
 
 void UITimer::Refresh()
 {
-    TimerTime tt = mTargetGetter();
+    TimerTime tt = m_fpTargetGetter();
 
     if (mLast.hour != tt.hour)
     {
         char buf[5];
         sprintf_s(buf, "%02d", tt.hour);
-        mTexHour.LoadFromRenderedText(buf, g_pFont, mColor);
+        m_texHour.LoadFromRenderedText(buf, g_pFont, m_color);
     }
     if (mLast.min != tt.min)
     {
         char buf[5];
         sprintf_s(buf, "%02d", tt.min);
-        mTexMin.LoadFromRenderedText(buf, g_pFont, mColor);
+        m_texMin.LoadFromRenderedText(buf, g_pFont, m_color);
     }
     if (mLast.sec != tt.sec)
     {
         char buf[5];
         sprintf_s(buf, "%02d", tt.sec);
-        mTexSec.LoadFromRenderedText(buf, g_pFont, mColor);
+        m_texSec.LoadFromRenderedText(buf, g_pFont, m_color);
     }
     if (mLast.msec != tt.msec)
     {
         char buf[5];
         sprintf_s(buf, "%03d", tt.msec);
-        mTexMsec.LoadFromRenderedText(buf, g_pFont, mColor);
+        m_texMsec.LoadFromRenderedText(buf, g_pFont, m_color);
     }
 
     mLast = tt;

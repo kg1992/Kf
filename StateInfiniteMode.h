@@ -23,10 +23,10 @@ public:
 private:
     TetrisGame m_tetrisGame;
     TetrisRenderer& m_tetrisRenderer;
-    Texture m_readyShow;
-    Texture m_gameoverShow;
-    UIStack m_infiniteUI;
-    std::shared_ptr<UITextBox> m_bonusShow;
+    UITextBox m_uiReady;
+    UITextBox m_uiGameOver;
+    UIStack m_uiInfinite;
+    std::shared_ptr<UITextBox> m_uiBonus;
 };
 
 

@@ -5,35 +5,35 @@
 #include "Application.h"
 
 StateSprintMode::StateSprintMode(TetrisRenderer& tetrisRenderer)
-    : tetrisGame(10, 22, 3, 19)
-    , tetrisRenderer(tetrisRenderer)
-    , sprintTimer()
-    , readyShow(Application::GetString(StringTable::SI_Ready), ColorDarkBrown, ColorDarkYellow)
-    , gameoverShow(Application::GetString(StringTable::SI_GameOver), ColorDarkBrown, ColorDarkYellow)
-    , sprintCompleteShow(Application::GetString(StringTable::SI_Sprint_Complete), ColorDarkBrown, ColorDarkYellow)
+    : m_tetrisGame(10, 22, 3, 19)
+    , m_tetrisRenderer(tetrisRenderer)
+    , m_sprintTimer()
+    , m_uiReady(Application::GetString(StringTable::SI_Ready), ColorDarkBrown, ColorDarkYellow)
+    , m_uiGameOver(Application::GetString(StringTable::SI_GameOver), ColorDarkBrown, ColorDarkYellow)
+    , m_uiSprintComplete(Application::GetString(StringTable::SI_Sprint_Complete), ColorDarkBrown, ColorDarkYellow)
 {
 }
 
 void StateSprintMode::OnStart()
 {
-    PlayField& playField = tetrisGame.GetPlayField();
+    PlayField& playField = m_tetrisGame.GetPlayField();
 
-    sprintUI.Clear();
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_LineClear), ColorDarkBrown)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetTotalClearedLines, &tetrisGame), MinTextBoxHeight)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Score), ColorDarkBrown)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetScore, &tetrisGame), MinTextBoxHeight)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Time), ColorDarkBrown)));
-    sprintUI.AddUI(std::shared_ptr<UI>(new UITimer(std::bind(&SprintTimer::GetTimerTime, &sprintTimer), ColorDarkBlue, MinTextBoxHeight)));
+    m_uiSprint.Clear();
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_LineClear), ColorDarkBrown)));
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetTotalClearedLines, &m_tetrisGame), MinTextBoxHeight + 4)));
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Score), ColorDarkBrown)));
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetScore, &m_tetrisGame), MinTextBoxHeight + 4)));
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Time), ColorDarkBrown)));
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UITimer(std::bind(&SprintTimer::GetTimerTime, &m_sprintTimer), ColorDarkBlue, MinTextBoxHeight + 4)));
 
-    readyShow.SetContent(Application::GetString(StringTable::SI_Ready));
-    gameoverShow.SetContent(Application::GetString(StringTable::SI_GameOver));
-    sprintCompleteShow.SetContent(Application::GetString(StringTable::SI_Sprint_Complete));
+    m_uiReady.SetContent(Application::GetString(StringTable::SI_Ready));
+    m_uiGameOver.SetContent(Application::GetString(StringTable::SI_GameOver));
+    m_uiSprintComplete.SetContent(Application::GetString(StringTable::SI_Sprint_Complete));
 
     TetrisRenderDesc desc = { 0 };
     desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 16.f));
-    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;
-    desc.pxPlayFieldY = (Application::GetClientAreaHeight() - tetrisGame.GetPlayField().GetHeight() * desc.pxBlockSize) / 2;
+    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - m_tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;
+    desc.pxPlayFieldY = (Application::GetClientAreaHeight() - m_tetrisGame.GetPlayField().GetHeight() * desc.pxBlockSize) / 2;
     desc.pxHoldX = desc.pxPlayFieldX - desc.pxBlockSize * 5;
     desc.pxHoldY = desc.pxPlayFieldY;
     desc.nextCount = 5;
@@ -44,18 +44,18 @@ void StateSprintMode::OnStart()
     }
     desc.visibleLines = 20;
 
-    tetrisRenderer.SetTetrisRenderDesc(desc);
+    m_tetrisRenderer.SetTetrisRenderDesc(desc);
 
-    sprintUI.SetXy(desc.pxPlayFieldX - sprintUI.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
+    m_uiSprint.SetXy(desc.pxPlayFieldX - m_uiSprint.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
 }
 
 void StateSprintMode::OnUpdate()
 {
-    switch (tetrisGame.GetPlayState())
+    switch (m_tetrisGame.GetPlayState())
     {
     case PS_Dropped:
     {
-        auto result = tetrisGame.OnDrop();
+        auto result = m_tetrisGame.OnDrop();
         if (result.lineClearCount != 0)
         {
             Mix_PlayChannel(-1, g_pWavExplosion, 0);
@@ -64,13 +64,13 @@ void StateSprintMode::OnUpdate()
     break;
     case PS_Control:
     {
-        tetrisGame.OnControl();
+        m_tetrisGame.OnControl();
 
         int dx = 0;
-        if (Application::state[SDL_SCANCODE_DOWN]) tetrisGame.SoftDrop();
+        if (Application::state[SDL_SCANCODE_DOWN]) m_tetrisGame.SoftDrop();
         if (Application::state[SDL_SCANCODE_RIGHT]) dx += 1;
         if (Application::state[SDL_SCANCODE_LEFT]) dx += -1;
-        tetrisGame.Shift(dx);
+        m_tetrisGame.Shift(dx);
     }
     break;
     }
@@ -81,27 +81,27 @@ void StateSprintMode::OnRender()
     int screenWidth = Application::GetClientAreaWidth();
     int screenHeight = Application::GetClientAreaHeight();
 
-    tetrisRenderer.DrawTetris(tetrisGame);
+    m_tetrisRenderer.DrawTetris(m_tetrisGame);
 
-    sprintUI.Render();
+    m_uiSprint.Render();
 
-    if (tetrisGame.GetPlayState() == PS_GameOver) {
-        sprintTimer.Stop();
-        gameoverShow.SetXy((screenWidth - gameoverShow.GetWidth()) / 2, (screenHeight - gameoverShow.GetHeight()) / 2);
-        gameoverShow.Render();
+    if (m_tetrisGame.GetPlayState() == PS_GameOver) {
+        m_sprintTimer.Stop();
+        m_uiGameOver.SetXy((screenWidth - m_uiGameOver.GetWidth()) / 2, (screenHeight - m_uiGameOver.GetHeight()) / 2);
+        m_uiGameOver.Render();
     }
-    else if (tetrisGame.GetPlayState() == PS_Ready)
+    else if (m_tetrisGame.GetPlayState() == PS_Ready)
     {
-        readyShow.SetXy((screenWidth - readyShow.GetWidth()) / 2, (screenHeight - readyShow.GetHeight()) / 2);
-        readyShow.Render();
+        m_uiReady.SetXy((screenWidth - m_uiReady.GetWidth()) / 2, (screenHeight - m_uiReady.GetHeight()) / 2);
+        m_uiReady.Render();
     }
 
-    if (tetrisGame.GetTotalClearedLines() >= 5)
+    if (m_tetrisGame.GetTotalClearedLines() >= 5)
     {
-        sprintTimer.Stop();
-        sprintCompleteShow.SetXy((screenWidth - sprintCompleteShow.GetWidth()) / 2, (screenHeight - sprintCompleteShow.GetHeight()) / 2);
-        sprintCompleteShow.Render();
-        tetrisGame.Win();
+        m_sprintTimer.Stop();
+        m_uiSprintComplete.SetXy((screenWidth - m_uiSprintComplete.GetWidth()) / 2, (screenHeight - m_uiSprintComplete.GetHeight()) / 2);
+        m_uiSprintComplete.Render();
+        m_tetrisGame.Win();
     }
 }
 
@@ -115,45 +115,45 @@ void StateSprintMode::OnSdlEvent(const SDL_Event& e)
         {
 
         case SDLK_g:
-            tetrisGame.ToggleGravity();
+            m_tetrisGame.ToggleGravity();
             break;
 
         case SDLK_SPACE:
-            if (tetrisGame.GetPlayState() == PS_Control)
+            if (m_tetrisGame.GetPlayState() == PS_Control)
             {
-                tetrisGame.HardDrop();
+                m_tetrisGame.HardDrop();
                 Mix_PlayChannel(-1, g_pWavDrop, 0);
             }
-            else if (tetrisGame.GetPlayState() == PS_Ready)
+            else if (m_tetrisGame.GetPlayState() == PS_Ready)
             {
-                tetrisGame.StartGame();
-                sprintTimer.Start();
+                m_tetrisGame.StartGame();
+                m_sprintTimer.Start();
             }
             break;
 
         case SDLK_z:
-            tetrisGame.RotateAntiClockwise();
+            m_tetrisGame.RotateAntiClockwise();
             break;
 
         case SDLK_UP:
         case SDLK_x:
-            tetrisGame.RotateClockwise();
+            m_tetrisGame.RotateClockwise();
             break;
 
         case SDLK_c:
         case SDLK_LSHIFT:
-            tetrisGame.Hold();
+            m_tetrisGame.Hold();
             break;
 
         case SDLK_r:
-            tetrisGame.Restart();
+            m_tetrisGame.Restart();
             break;
 
         case SDLK_q:
-            tetrisGame.Reset();
+            m_tetrisGame.Reset();
             Mix_PauseMusic();
             Mix_RewindMusic();
-            sprintTimer.Stop();
+            m_sprintTimer.Stop();
             Application::gsm.SetState(&*Application::pStateMainMenu);
             break;
 
