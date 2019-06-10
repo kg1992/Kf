@@ -201,7 +201,6 @@
     <ClInclude Include="Randomizer.h" />
     <ClInclude Include="ScoreKeeper.h" />
     <ClInclude Include="SprintTimer.h" />
-    <ClInclude Include="StateBattle.h" />
     <ClInclude Include="StateInfiniteMode.h" />
     <ClInclude Include="StateMainMenu.h" />
     <ClInclude Include="StateOnePlayer.h" />

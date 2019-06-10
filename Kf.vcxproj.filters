@@ -46,7 +46,6 @@
     <ClInclude Include="StateOptions.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="StringTable.h" />
-    <ClInclude Include="StateBattle.h" />
     <ClInclude Include="StateOnePlayer.h" />
     <ClInclude Include="Pch.h" />
   </ItemGroup>
