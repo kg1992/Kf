@@ -177,6 +177,7 @@
     <ClCompile Include="Randomizer.cpp" />
     <ClCompile Include="ScoreKeeper.cpp" />
     <ClCompile Include="SprintTimer.cpp" />
+    <ClCompile Include="StateDigDownMode.cpp" />
     <ClCompile Include="StateInfiniteMode.cpp" />
     <ClCompile Include="StateMainMenu.cpp" />
     <ClCompile Include="StateOnePlayer.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="Randomizer.h" />
     <ClInclude Include="ScoreKeeper.h" />
     <ClInclude Include="SprintTimer.h" />
+    <ClInclude Include="StateDigDownMode.h" />
     <ClInclude Include="StateInfiniteMode.h" />
     <ClInclude Include="StateMainMenu.h" />
     <ClInclude Include="StateOnePlayer.h" />

@@ -5,8 +5,6 @@
 #include "Options.h"
 #include "StringTable.h"
 
-namespace filesystem = std::experimental::filesystem;
-
 enum GameState
 {
     GS_MainMenu,
@@ -39,6 +37,7 @@ public:
     static std::shared_ptr<State> pStateMainMenu;
     static std::shared_ptr<State> pStateSprintMode;
     static std::shared_ptr<State> pStateInfiniteMode;
+    static std::shared_ptr<State> pStateDigDownMode;
     static std::shared_ptr<State> pStateOptions;
     static const Uint8* state;
     static SDL_Window* window;
@@ -53,9 +52,8 @@ std::string Utf16wstrToUtf8str(const std::wstring& content);
 
 // minimum ui textbox height
 const int MinTextBoxHeight = 28;
-// white color
+
 const SDL_Color ColorWhite = { 0xff, 0xff, 0xff };
-// black color
 const SDL_Color ColorBlack = { 0x00, 0x00, 0x00 };
 const SDL_Color ColorDarkBrown = { 75, 59, 66 };
 const SDL_Color ColorGrayBrown = {156, 132, 129};

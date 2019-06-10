@@ -24,4 +24,6 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 
+namespace filesystem = std::experimental::filesystem;
+
 #endif

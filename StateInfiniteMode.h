@@ -21,8 +21,6 @@ public:
     void OnSdlEvent(const SDL_Event& e);
 
 private:
-    UITextBox m_uiReady;
-    UITextBox m_uiGameOver;
     UIStack m_uiInfinite;
     std::shared_ptr<UITextBox> m_uiBonus;
 };

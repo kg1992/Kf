@@ -13,6 +13,7 @@ enum Block
     B_Magenta,
     B_Yellow,
     B_Orange,
+    B_Gray,
 
     B_End
 };

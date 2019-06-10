@@ -37,24 +37,34 @@ public:
 
     void Reset();
 
+    // Saves current state to the stream in binary
     void SaveState(std::ostream& ofs);
 
+    // Loads a state from the stream in binary
     void LoadState(std::istream& ifs);
 
+    // Toggles gravity. If gravity is turend off, active tetrimino will not fall over time
     void ToggleGravity();
 
+    // Trigger hard drop
     void HardDrop();
 
+    // Start the game
     void StartGame();
 
+    // Rotate active tetrimino anticlockwise. Check lastRotateResult
     void RotateAntiClockwise();
 
+    // Rotate active tetrimino clockwise. Check lastRotateResult
     void RotateClockwise();
 
+    // Trigger hold
     void Hold();
 
+    // Restart the game if the game is in 'PS_GameOver' state
     void Restart();
 
+    // Gets current state of the game
     PlayState GetPlayState();
 
     struct DropResult
@@ -67,29 +77,44 @@ public:
 
     DropResult OnDrop();
 
+    // Gets current comboe count
     int GetCombo();
 
+    // Gets current level of the game. gravity power is proportional to the level
     int GetLevel();
 
+    // invoke this function every frame to activate for 'Lock' and 'Gravity'
     void OnControl();
 
+    // Trigger soft drop
     void SoftDrop();
 
+    // Triggers shifting
     void Shift(int dx);
 
+    // Gets PlayField
     PlayField& GetPlayField();
 
+    // Gets Randomizer
     Randomizer& GetRandomizer();
 
+    // Gets active tetrimino
     Tetrimino& GetActiveTetrimino();
 
+    // Gets current tetrimino that is held
     TetriminoType GetHold();
 
+    // Gets total line clear count
     int GetTotalClearedLines();
 
+    // Gets score
     int GetScore();
 
+    // Change state to win
     void Win();
+
+    // Lines
+    void AddGarbageLines(int count);
 
 private:
     int totalClearedLines = 0;

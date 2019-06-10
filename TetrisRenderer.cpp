@@ -10,7 +10,8 @@ MinoRenderer::MinoRenderer(SDL_Renderer* pRenderer)
         {Step * 2,0,Step,Step},// B_Cyan,
         {Step * 2,Step,Step,Step},// B_Magenta,
         {Step * 3,0,Step,Step},// B_Yellow,
-        {Step * 3,Step,Step,Step}// B_Orange,
+        {Step * 3,Step,Step,Step},// B_Orange,
+        {0,0, Step, Step}, //B_Gray
 }
 , m_pRenderer(pRenderer)
 , m_minoTexture(pRenderer)

@@ -11,11 +11,13 @@
 #include "StateSprintMode.h"
 #include "StateInfiniteMode.h"
 #include "StateOptions.h"
+#include "StateDigDownMode.h"
 
 FiniteStateMachine Application::gsm;
 std::shared_ptr<State> Application::pStateMainMenu;
 std::shared_ptr<State> Application::pStateSprintMode;
 std::shared_ptr<State> Application::pStateInfiniteMode;
+std::shared_ptr<State> Application::pStateDigDownMode;
 std::shared_ptr<State> Application::pStateOptions;
 const Uint8* Application::state;
 SDL_Window* Application::window;
@@ -145,6 +147,7 @@ int Application::Start()
     pStateMainMenu.reset(new StateMainMenu());
     pStateSprintMode.reset(new StateSprintMode(tetrisRenderer));
     pStateInfiniteMode.reset(new StateInfiniteMode(tetrisRenderer));
+    pStateDigDownMode.reset(new StateDigDownMode(tetrisRenderer));
     pStateOptions.reset(new StateOptions());
 
     gsm.SetState(&*pStateMainMenu);

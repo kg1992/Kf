@@ -379,6 +379,32 @@ void TetrisGame::Win()
     playState = PS_Win;
 }
 
+void TetrisGame::AddGarbageLines(int count)
+{
+    for (int y = playField.GetHeight() - 1; y >= count; --y)
+    {
+        int sy = y - count;
+        if (sy >= 0)
+        {
+            for (int x = 0; x < playField.GetWidth(); ++x)
+            {
+                playField.Set(x, y, playField.Get(x, sy));
+            }
+        }
+    }
+    for (int y = count - 1; y >= 0; --y)
+    {
+        int bx = rand() % playField.GetWidth();
+        for (int x = 0; x < playField.GetWidth(); ++x)
+        {
+            playField.Set(x, y, x != bx ? Block::B_Gray : Block::B_Empty);
+        }
+    }
+
+    if (playField.CheckOverlap(tmActive))
+        tmActive.y++;
+}
+
 PlayState TetrisGame::LockAndSelectState(Tetrimino& tm)
 {
     bool overwrite = playField.LockTetrimino(tm);

@@ -21,6 +21,7 @@ public:
         SI_MainMenu_Top,
         SI_MainMenu_Infinite,
         SI_MainMenu_Sprint,
+        SI_MainMenu_DigDown,
         SI_MainMenu_Options,
         SI_MainMenu_Quit,
 
@@ -35,6 +36,7 @@ public:
         SI_Combo,
         SI_Score,
         SI_Time,
+        SI_GrowDuration,
 
         SI_Ready,
         SI_GameOver,

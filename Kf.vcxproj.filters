@@ -23,6 +23,7 @@
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="StateOnePlayer.cpp" />
+    <ClCompile Include="StateDigDownMode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PresetBoards.h" />
@@ -48,5 +49,6 @@
     <ClInclude Include="StringTable.h" />
     <ClInclude Include="StateOnePlayer.h" />
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="StateDigDownMode.h" />
   </ItemGroup>
 </Project>

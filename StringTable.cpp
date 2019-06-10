@@ -22,17 +22,23 @@ StringTable::StringTable()
         {"en", L"2. Sprint 40 Mode"},
         {"ko", L"2. 스프린트 40줄"}
     };
+
+    m_tables[SI_MainMenu_DigDown] =
+    {
+        {"en", L"3. Dig Down Mode"},
+        {"ko", L"3. 파내리기"}
+    };
     
     m_tables[SI_MainMenu_Options] =
     {
-        {"en", L"3. Options"},
-        {"ko", L"3. 설정"}
+        {"en", L"4. Options"},
+        {"ko", L"4. 설정"}
     };
 
     m_tables[SI_MainMenu_Quit] =
     {
-        {"en", L"4. Quit Game"},
-        {"ko", L"4. 게임종료"}
+        {"en", L"5. Quit Game"},
+        {"ko", L"5. 게임종료"}
     };
 
     m_tables[SI_Options_Resolution] =
@@ -93,6 +99,12 @@ StringTable::StringTable()
     {
         {"en", L"TIME"},
         {"ko", L"시간"},
+    };
+
+    m_tables[SI_GrowDuration] =
+    {
+        {"en", L"GARBAGE SPAWN(ms)"},
+        {"ko", L"방해블록 소환주기(ms)"},
     };
 
     m_tables[SI_Ready] =

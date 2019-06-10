@@ -23,8 +23,6 @@ public:
 private:
     SprintTimer m_sprintTimer;
     UIStack m_uiSprint;
-    UITextBox m_uiReady;
-    UITextBox m_uiGameOver;
     UITextBox m_uiSprintComplete;
 };
 

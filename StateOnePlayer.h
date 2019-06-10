@@ -4,17 +4,29 @@
 #include "FiniteStateMachine.h"
 #include "TetrisGame.h"
 #include "TetrisRenderer.h"
+#include "UI.h"
 
 class StateOnePlayer : public State
 {
-public:
+protected:
     StateOnePlayer(TetrisRenderer& tetrisRenderer);
 
-protected:
+    virtual void OnStart();
+
+    virtual void OnRender();
+
+    virtual void OnSdlEvent(const SDL_Event& e);
+
     TetrisGame m_tetrisGame;
     TetrisRenderer& m_tetrisRenderer;
+    UITextBox m_uiReady;
+    UITextBox m_uiGameOver;
 
     TetrisRenderDesc MakeRenderDesc();
+
+    void DoShift();
+
+    TetrisGame::DropResult DoDrop();
 };
 
 #endif
