@@ -1,3 +1,4 @@
+#include "Pch.h"
 #include "Tetrimino.h"
 
 void MinoPatternIndexToXY(int tx, int ty, int i, int& pfx, int& pfy)

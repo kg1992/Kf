@@ -1,9 +1,6 @@
 #ifndef FINITE_STATE_MACHINE_H_
 #define FINITE_STATE_MACHINE_H_
 
-#include <string>
-#include <SDL.h>
-
 class State
 {
 public:

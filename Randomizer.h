@@ -1,9 +1,6 @@
 #ifndef RANDOMIZER_H_
 #define RANDOMIZER_H_
 
-#include <vector>
-#include <random>
-#include <iostream>
 #include "Tetrimino.h"
 
 class Randomizer

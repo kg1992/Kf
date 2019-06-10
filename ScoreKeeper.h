@@ -1,7 +1,6 @@
 #ifndef SCORE_KEEPER_H_
 #define SCORE_KEEPER_H_
 
-#include <iostream>
 #include "LineClearInfoTable.h"
 
 class ScoreKeeper

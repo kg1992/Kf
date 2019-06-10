@@ -21,6 +21,8 @@
     <ClCompile Include="StateOptions.cpp" />
     <ClCompile Include="StringTable.cpp" />
     <ClCompile Include="Options.cpp" />
+    <ClCompile Include="Pch.cpp" />
+    <ClCompile Include="StateOnePlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PresetBoards.h" />
@@ -44,5 +46,8 @@
     <ClInclude Include="StateOptions.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="StringTable.h" />
+    <ClInclude Include="StateBattle.h" />
+    <ClInclude Include="StateOnePlayer.h" />
+    <ClInclude Include="Pch.h" />
   </ItemGroup>
 </Project>

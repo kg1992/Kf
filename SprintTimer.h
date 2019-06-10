@@ -1,7 +1,6 @@
 #ifndef SPRINT_TIMER_H_
 #define SPRINT_TIMER_H_
 
-#include <chrono>
 #include "TimerTime.h"
 
 class SprintTimer

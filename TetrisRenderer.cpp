@@ -1,5 +1,5 @@
+#include "Pch.h"
 #include "TetrisRenderer.h"
-#include <SDL.h>
 
 MinoRenderer::MinoRenderer(SDL_Renderer* pRenderer)
     : m_minoTextureSlots{

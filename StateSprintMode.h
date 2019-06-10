@@ -1,13 +1,13 @@
 #ifndef STATE_SPRINT_MODE_H_
 #define STATE_SPRINT_MODE_H_
 
-#include "FiniteStateMachine.h"
+#include "StateOnePlayer.h"
 #include "UI.h"
 #include "SprintTimer.h"
 #include "TetrisGame.h"
 #include "TetrisRenderer.h"
 
-class StateSprintMode : public State
+class StateSprintMode : public StateOnePlayer
 {
 public:
     StateSprintMode(TetrisRenderer& tetrisRenderer);
@@ -21,8 +21,6 @@ public:
     void OnSdlEvent(const SDL_Event& e);
 
 private:
-    TetrisGame m_tetrisGame;
-    TetrisRenderer& m_tetrisRenderer;
     SprintTimer m_sprintTimer;
     UIStack m_uiSprint;
     UITextBox m_uiReady;

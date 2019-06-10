@@ -1,6 +1,5 @@
+#include "Pch.h"
 #include "TetrisGame.h"
-#include <ctime>
-#include <SDL.h>
 
 Tetrimino MakeTetrimino(TetriminoType type, int x, int y)
 {

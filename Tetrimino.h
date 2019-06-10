@@ -1,8 +1,6 @@
 #ifndef TETRIMINO_H_
 #define TETRIMINO_H_
 
-#include <iostream>
-
 enum TetriminoType : int
 {
     TT_I, TT_O, TT_T, TT_S, TT_Z, TT_J, TT_L, TT_End

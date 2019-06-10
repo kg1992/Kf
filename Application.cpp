@@ -1,16 +1,5 @@
+#include "Pch.h"
 #include "Application.h"
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <filesystem>
-#include <chrono>
-#include <functional>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <SDL_mixer.h>
 #include "PresetBoards.h"
 #include "Texture.h"   
 #include "TetrisGame.h"

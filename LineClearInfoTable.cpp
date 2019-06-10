@@ -1,3 +1,4 @@
+#include "Pch.h"
 #include "LineClearInfoTable.h"
 
 LineClearType DetectLineClearType(int lineClearCount, bool tspin, bool minitspin)

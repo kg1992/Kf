@@ -1,3 +1,4 @@
+#include "Pch.h"
 #include "StringTable.h"
 
 const std::wstring Undefined = L"[[UNDEFINED]]";

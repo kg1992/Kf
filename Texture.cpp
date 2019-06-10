@@ -1,7 +1,5 @@
+#include "Pch.h"
 #include "Texture.h"
-#include <cstdio>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
 
 SDL_Renderer* mRenderer;
 

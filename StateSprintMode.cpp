@@ -1,12 +1,11 @@
+#include "Pch.h"
 #include "StateSprintMode.h"
-#include <SDL_mixer.h>
 #include "TetrisGame.h"
 #include "TetrisRenderer.h"
 #include "Application.h"
 
 StateSprintMode::StateSprintMode(TetrisRenderer& tetrisRenderer)
-    : m_tetrisGame(10, 22, 3, 19)
-    , m_tetrisRenderer(tetrisRenderer)
+    : StateOnePlayer(tetrisRenderer)
     , m_sprintTimer()
     , m_uiReady(Application::GetString(StringTable::SI_Ready), ColorDarkBrown, ColorDarkYellow)
     , m_uiGameOver(Application::GetString(StringTable::SI_GameOver), ColorDarkBrown, ColorDarkYellow)
@@ -20,32 +19,18 @@ void StateSprintMode::OnStart()
 
     m_uiSprint.Clear();
     m_uiSprint.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_LineClear), ColorDarkBrown)));
-    m_uiSprint.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetTotalClearedLines, &m_tetrisGame), MinTextBoxHeight + 4)));
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetTotalClearedLines, &m_tetrisGame), MinTextBoxHeight + 16)));
     m_uiSprint.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Score), ColorDarkBrown)));
-    m_uiSprint.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetScore, &m_tetrisGame), MinTextBoxHeight + 4)));
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UINumberBox(0, std::bind(&TetrisGame::GetScore, &m_tetrisGame), MinTextBoxHeight + 16)));
     m_uiSprint.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_Time), ColorDarkBrown)));
-    m_uiSprint.AddUI(std::shared_ptr<UI>(new UITimer(std::bind(&SprintTimer::GetTimerTime, &m_sprintTimer), ColorDarkBlue, MinTextBoxHeight + 4)));
+    m_uiSprint.AddUI(std::shared_ptr<UI>(new UITimer(std::bind(&SprintTimer::GetTimerTime, &m_sprintTimer), ColorDarkBlue, MinTextBoxHeight + 16)));
 
     m_uiReady.SetContent(Application::GetString(StringTable::SI_Ready));
     m_uiGameOver.SetContent(Application::GetString(StringTable::SI_GameOver));
     m_uiSprintComplete.SetContent(Application::GetString(StringTable::SI_Sprint_Complete));
 
-    TetrisRenderDesc desc = { 0 };
-    desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 24.f));
-    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - m_tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;
-    desc.pxPlayFieldY = (Application::GetClientAreaHeight() - m_tetrisGame.GetPlayField().GetHeight() * desc.pxBlockSize) / 2;
-    desc.pxHoldX = desc.pxPlayFieldX - desc.pxBlockSize * 5;
-    desc.pxHoldY = desc.pxPlayFieldY;
-    desc.nextCount = 5;
-    for (int i = 0; i < 5; ++i)
-    {
-        desc.pxNextX[i] = desc.pxPlayFieldX + desc.pxBlockSize * 11;
-        desc.pxNextY[i] = desc.pxPlayFieldY + i * desc.pxBlockSize * 4;
-    }
-    desc.visibleLines = 20;
-
+    TetrisRenderDesc desc = MakeRenderDesc();
     m_tetrisRenderer.SetTetrisRenderDesc(desc);
-
     m_uiSprint.SetXy(desc.pxPlayFieldX - m_uiSprint.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
 }
 

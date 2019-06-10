@@ -1,10 +1,6 @@
 #ifndef LTEXTURE_H_
 #define LTEXTURE_H_
 
-#include <string>
-#include <SDL.h>
-#include <SDL_ttf.h>
-
 class Texture
 {
 public:

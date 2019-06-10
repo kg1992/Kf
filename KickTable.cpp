@@ -1,3 +1,4 @@
+#include "Pch.h"
 #include "KickTable.h"
 
 int KickTable::GetKickTestSetIndex(TetriminoType type, Orientation orientation, bool clockwise)

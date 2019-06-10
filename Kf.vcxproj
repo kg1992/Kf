@@ -96,6 +96,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,6 +111,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,6 +128,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,6 +147,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,12 +163,23 @@
     <ClCompile Include="KickTable.cpp" />
     <ClCompile Include="LineClearInfoTable.cpp" />
     <ClCompile Include="Options.cpp" />
+    <ClCompile Include="Pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="PlayField.cpp" />
     <ClCompile Include="Randomizer.cpp" />
     <ClCompile Include="ScoreKeeper.cpp" />
     <ClCompile Include="SprintTimer.cpp" />
     <ClCompile Include="StateInfiniteMode.cpp" />
     <ClCompile Include="StateMainMenu.cpp" />
+    <ClCompile Include="StateOnePlayer.cpp" />
     <ClCompile Include="StateOptions.cpp" />
     <ClCompile Include="StateSprintMode.cpp" />
     <ClCompile Include="StringTable.cpp" />
@@ -177,12 +196,15 @@
     <ClInclude Include="KickTable.h" />
     <ClInclude Include="LineClearInfoTable.h" />
     <ClInclude Include="Options.h" />
+    <ClInclude Include="Pch.h" />
     <ClInclude Include="PlayField.h" />
     <ClInclude Include="Randomizer.h" />
     <ClInclude Include="ScoreKeeper.h" />
     <ClInclude Include="SprintTimer.h" />
+    <ClInclude Include="StateBattle.h" />
     <ClInclude Include="StateInfiniteMode.h" />
     <ClInclude Include="StateMainMenu.h" />
+    <ClInclude Include="StateOnePlayer.h" />
     <ClInclude Include="StateOptions.h" />
     <ClInclude Include="StateSprintMode.h" />
     <ClInclude Include="StringTable.h" />

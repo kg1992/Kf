@@ -1,8 +1,5 @@
-#include "Options.h"    
-#include <fstream>
-#include <locale>
-#include <codecvt>
-#include <sstream>
+#include "Pch.h"
+#include "Options.h"
 
 // ref : https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 const std::vector<std::string>& Options::ListLanguages()

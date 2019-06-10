@@ -1,5 +1,5 @@
+#include "Pch.h"
 #include "StateMainMenu.h"
-#include <SDL_mixer.h>
 #include "Application.h"
 
 StateMainMenu::StateMainMenu()

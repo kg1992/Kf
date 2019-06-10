@@ -1,8 +1,6 @@
 #ifndef PLAY_FIELD_H_
 #define PLAY_FIELD_H_
 
-#include <vector>
-#include <iostream>
 #include "Tetrimino.h"
 
 enum Block

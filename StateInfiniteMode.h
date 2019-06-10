@@ -1,13 +1,13 @@
 #ifndef STATE_INFINITE_MODE_H_
 #define STATE_INFINITE_MODE_H_
 
-#include "FiniteStateMachine.h"
+#include "StateOnePlayer.h"
 #include "UI.h"
 #include "SprintTimer.h"
 #include "TetrisGame.h"
 #include "TetrisRenderer.h"
 
-class StateInfiniteMode : public State
+class StateInfiniteMode : public StateOnePlayer
 {
 public:
     StateInfiniteMode(TetrisRenderer& tetrisRenderer);
@@ -21,8 +21,6 @@ public:
     void OnSdlEvent(const SDL_Event& e);
 
 private:
-    TetrisGame m_tetrisGame;
-    TetrisRenderer& m_tetrisRenderer;
     UITextBox m_uiReady;
     UITextBox m_uiGameOver;
     UIStack m_uiInfinite;

@@ -1,3 +1,4 @@
+#include "Pch.h"
 #include "SprintTimer.h"
 
 SprintTimer::SprintTimer()

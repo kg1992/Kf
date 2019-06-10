@@ -1,6 +1,5 @@
+#include "Pch.h"
 #include "StateOptions.h"
-#include <SDL.h>
-#include <vector>
 #include "UI.h"
 #include "Application.h"
 

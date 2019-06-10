@@ -2,11 +2,6 @@
 #define APPLICATION_H_
 
 #include "FiniteStateMachine.h"
-#include <filesystem>
-#include <memory>
-#include <SDL_mixer.h>
-#include <SDL_ttf.h>
-#include <cstring>
 #include "Options.h"
 #include "StringTable.h"
 

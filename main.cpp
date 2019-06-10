@@ -6,6 +6,7 @@
 // ref) colinfahey tetris : https://www.colinfahey.com/tetris/tetris.html
 // ref) Lock Delay : https://tetris.fandom.com/wiki/Lock_delay
 
+#include "Pch.h"
 #include "Application.h"
 
 int main(int argc, char** argv)

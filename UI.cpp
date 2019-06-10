@@ -1,6 +1,5 @@
+#include "Pch.h"
 #include "UI.h"
-#include <algorithm>
-#include <codecvt>
 #include "Application.h"
 
 extern TTF_Font* g_pFont;

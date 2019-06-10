@@ -1,11 +1,6 @@
 #ifndef UI_H_
 #define UI_H_
 
-#include <functional>
-#include <string>
-#include <memory>
-#include <vector>
-#include <SDL.h>
 #include "TimerTime.h"
 #include "Texture.h"
 

@@ -1,10 +1,6 @@
 #ifndef STRING_TABLE_H_
 #define STRING_TABLE_H_
 
-#include <string>
-#include <vector>
-#include <algorithm>
-
 struct StringRecord
 {
     StringRecord(std::string language, std::wstring content)

@@ -1,12 +1,9 @@
+#include "Pch.h"
 #include "StateInfiniteMode.h"
-#include <iostream>
-#include <fstream>
-#include <SDL_mixer.h>
 #include "Application.h"
 
 StateInfiniteMode::StateInfiniteMode(TetrisRenderer& tetrisRenderer)
-    : m_tetrisGame(10, 22, 3, 19)
-    , m_tetrisRenderer(tetrisRenderer)
+    : StateOnePlayer(tetrisRenderer)
     , m_uiReady("", ColorDarkBrown, ColorDarkYellow)
     , m_uiGameOver("", ColorDarkBrown, ColorDarkYellow)
 {
@@ -33,20 +30,7 @@ void StateInfiniteMode::OnStart()
     m_uiReady.SetContent(Application::GetString(StringTable::SI_Ready));
     m_uiGameOver.SetContent(Application::GetString(StringTable::SI_GameOver));
 
-    TetrisRenderDesc desc = { 0 };
-    desc.pxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 24.f));
-    desc.pxPlayFieldX = (Application::GetClientAreaWidth() - m_tetrisGame.GetPlayField().GetWidth() * desc.pxBlockSize) / 2;
-    desc.pxPlayFieldY = 100;
-    desc.pxHoldX = desc.pxPlayFieldX - desc.pxBlockSize * 5;
-    desc.pxHoldY = desc.pxPlayFieldY;
-    desc.nextCount = 5;
-    for (int i = 0; i < 5; ++i)
-    {
-        desc.pxNextX[i] = desc.pxPlayFieldX + desc.pxBlockSize * 11;
-        desc.pxNextY[i] = desc.pxPlayFieldY + i * desc.pxBlockSize * 4;
-    }
-
-    desc.visibleLines = 20;
+    TetrisRenderDesc desc = MakeRenderDesc();
     m_tetrisRenderer.SetTetrisRenderDesc(desc);
     m_uiInfinite.SetXy(desc.pxPlayFieldX - m_uiInfinite.GetWidth(), desc.pxHoldY + desc.pxBlockSize * 5);
 }

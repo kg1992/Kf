@@ -1,8 +1,3 @@
-#include <string>
-#include <vector>
-#include <filesystem>
-#include <iostream>
-
 namespace filesystem = std::experimental::filesystem;
 
 struct Options
