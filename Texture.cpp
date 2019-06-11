@@ -51,7 +51,6 @@ bool Texture::LoadFromRenderedText(std::string textureText, TTF_Font* pFont, SDL
 
 void Texture::Free()
 {
-    //Free texture if it exists
     if (m_pTexture != nullptr)
     {
         SDL_DestroyTexture(m_pTexture);
@@ -63,7 +62,6 @@ void Texture::Free()
 
 void Texture::SetAlpha(Uint8 alpha)
 {
-    //Modulate texture alpha
     SDL_SetTextureAlphaMod(m_pTexture, alpha);
 }
 

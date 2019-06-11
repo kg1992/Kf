@@ -181,3 +181,17 @@ int PlayField::GetSpawnY()
 {
     return m_spawnY;
 }
+
+void PlayField::CopyLine(int srcy, int dsty)
+{
+    if (srcy < 0 || m_height <= srcy
+        || dsty < 0 || m_height <= dsty)
+    {
+        throw std::runtime_error("PlayField : Out of index");
+    }
+
+    for (int x = 0; x < m_width; ++x)
+    {
+        m_playField[XyToIndex(x, dsty)] = m_playField[XyToIndex(x, srcy)];
+    }
+}

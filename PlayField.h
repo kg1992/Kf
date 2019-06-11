@@ -70,6 +70,8 @@ public:
 
     int GetSpawnY();
 
+    void CopyLine(int srcy, int dsty);
+
 private:
     int m_width, m_height;
     int m_spawnX, m_spawnY;
