@@ -4,9 +4,10 @@
 #include "FiniteStateMachine.h"
 #include "TetrisGame.h"
 #include "TetrisRenderer.h"
+#include "StateTetrisGame.h"
 #include "UI.h"
 
-class StateOnePlayer : public State
+class StateOnePlayer : public StateTetrisGame
 {
 protected:
     StateOnePlayer(TetrisRenderer& tetrisRenderer);
@@ -21,12 +22,6 @@ protected:
     TetrisRenderer& m_tetrisRenderer;
     UITextBox m_uiReady;
     UITextBox m_uiGameOver;
-
-    TetrisRenderDesc MakeRenderDesc();
-
-    void DoShift();
-
-    TetrisGame::DropResult DoDrop();
 };
 
 #endif

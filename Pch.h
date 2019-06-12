@@ -18,6 +18,7 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <list>
 #include <random>
 #include <SDL.h>
 #include <SDL_image.h>

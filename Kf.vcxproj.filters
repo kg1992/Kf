@@ -24,6 +24,10 @@
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="StateOnePlayer.cpp" />
     <ClCompile Include="StateDigDownMode.cpp" />
+    <ClCompile Include="StateBattleMode.cpp" />
+    <ClCompile Include="StateTetrisGame.cpp" />
+    <ClCompile Include="TetrisEventHandler.cpp" />
+    <ClCompile Include="Replay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PresetBoards.h" />
@@ -50,5 +54,9 @@
     <ClInclude Include="StateOnePlayer.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="StateDigDownMode.h" />
+    <ClInclude Include="StateBattleMode.h" />
+    <ClInclude Include="StateTetrisGame.h" />
+    <ClInclude Include="Replay.h" />
+    <ClInclude Include="TetrisEventHandler.h" />
   </ItemGroup>
 </Project>

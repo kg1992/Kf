@@ -38,6 +38,7 @@ public:
     static std::shared_ptr<State> pStateSprintMode;
     static std::shared_ptr<State> pStateInfiniteMode;
     static std::shared_ptr<State> pStateDigDownMode;
+    // static std::shared_ptr<State> pStateBattleMode;
     static std::shared_ptr<State> pStateOptions;
     static const Uint8* state;
     static SDL_Window* window;

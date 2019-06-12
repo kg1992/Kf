@@ -28,6 +28,12 @@ StringTable::StringTable()
         {"en", L"3. Dig Down Mode"},
         {"ko", L"3. 파내리기"}
     };
+
+    //m_tables[SI_MainMenu_Battle] =
+    //{
+    //    {"en", L"4. Veresus"},
+    //    {"ko", L"4. 대전"}
+    //};
     
     m_tables[SI_MainMenu_Options] =
     {

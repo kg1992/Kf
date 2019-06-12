@@ -3,17 +3,26 @@
 #include "TetrisGame.h"
 #include "TetrisRenderer.h"
 #include "Application.h"
+#include "Replay.h"
+#include "TetrisEventHandler.h"
+
+#pragma warning( disable : 4996 )
 
 namespace
 {
-    const int SprintCompleteLines = 40;
+    const int SprintCompleteLines = 3;
 }
 
 StateSprintMode::StateSprintMode(TetrisRenderer& tetrisRenderer)
     : StateOnePlayer(tetrisRenderer)
     , m_sprintTimer()
     , m_uiSprintComplete("", ColorDarkBrown, ColorDarkYellow)
+    , m_recorder()
+    , m_handler(new StateSprintMode::SprintTetrisEventHandler(*this))
 {
+    m_tetrisGame.GetEventHandler().AddHandler(std::dynamic_pointer_cast<TetrisEventHandler>(m_handler));
+    std::shared_ptr<TetrisEventHandler> pHandler(new RecorderTetrisEventHandler(&m_recorder));
+    m_tetrisGame.GetEventHandler().AddHandler(pHandler);
 }
 
 void StateSprintMode::OnStart()
@@ -43,14 +52,14 @@ void StateSprintMode::OnUpdate()
     {
     case PS_Dropped:
     {
-        DoDrop();
+        DoDrop(m_tetrisGame);
     }
     break;
     case PS_Control:
     {
         m_tetrisGame.OnControl();
 
-        DoShift();
+        DoShift(m_tetrisGame);
     }
     break;
     }
@@ -102,5 +111,34 @@ void StateSprintMode::OnSdlEvent(const SDL_Event& e)
             break;
 
         }
+    }
+}
+
+StateSprintMode::SprintTetrisEventHandler::SprintTetrisEventHandler(StateSprintMode& state)
+    : m_state(state)
+{
+}
+
+void StateSprintMode::SprintTetrisEventHandler::OnGameStart()
+{
+}
+
+void StateSprintMode::SprintTetrisEventHandler::OnWin()
+{
+    if (Application::IsWriteEnabled())
+    {
+        time_t timer;
+        char buffer[0x100];
+        struct tm* tm_info = nullptr;
+
+        time(&timer);
+        tm_info = localtime(&timer);
+
+        std::size_t cursor = strftime(buffer, _countof(buffer), "%Y-%m-%d-%H-%M-%S Sprint", tm_info);
+        auto tt = m_state.m_sprintTimer.GetTimerTime();
+        sprintf_s(buffer + cursor, _countof(buffer) - cursor, "%d m %d s %d ms.dat", tt.min, tt.sec, tt.msec);
+
+        std::ofstream ofs(Application::GetPrefPath() / buffer);
+        m_state.m_recorder.Save(ofs);
     }
 }

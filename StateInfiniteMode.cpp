@@ -37,7 +37,7 @@ void StateInfiniteMode::OnUpdate()
     {
     case PS_Dropped:
     {
-        auto result = DoDrop();
+        auto result = DoDrop(m_tetrisGame);
         if (result.lineClearCount != 0)
         {
             LineClearInfo lci = LineClearInfoTable[result.lct];
@@ -56,7 +56,7 @@ void StateInfiniteMode::OnUpdate()
     {
         m_tetrisGame.OnControl();
 
-        DoShift();
+        DoShift(m_tetrisGame);
     }
     break;
     }

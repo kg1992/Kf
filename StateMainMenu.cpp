@@ -14,6 +14,7 @@ void StateMainMenu::OnStart()
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Infinite), ColorBlack)));
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Sprint), ColorBlack)));
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_DigDown), ColorBlack)));
+    // mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Battle), ColorBlack)));
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Options), ColorBlack)));
     mainMenu.AddUI(std::shared_ptr<UI>(new UITextBox(Application::GetString(StringTable::SI_MainMenu_Quit), ColorBlack)));
     mainMenu.Render();
@@ -46,8 +47,14 @@ void StateMainMenu::OnSdlEvent(const SDL_Event& e)
             Mix_ResumeMusic();
             break;
 
+        //case SDLK_4:
+        //    Application::gsm.SetState(&*Application::pStateBattleMode);
+        //    Mix_ResumeMusic();
+        //    break;
+
         case SDLK_4:
             Application::gsm.SetState(&*Application::pStateOptions);
+            Mix_ResumeMusic();
             break;
 
         case SDLK_5:

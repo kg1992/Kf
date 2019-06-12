@@ -10,6 +10,7 @@
 #include "ScoreKeeper.h"
 #include "Randomizer.h"
 #include "KickTable.h"
+#include "TetrisEventHandler.h"
 
 enum PlayState : int
 {
@@ -23,11 +24,25 @@ enum PlayState : int
 
 Tetrimino MakeTetrimino(TetriminoType type, int x = 0, int y = 0);
 
+// Result of a rotation
 struct RotateResult
 {
     bool success;
     bool tspin;
     bool minitspin;
+};
+
+// Result of drop
+struct DropResult
+{
+    // how many lines were cleared. 0 <= lineClearCount <= 4
+    int lineClearCount;
+    // line clear type. was it a single? double? triple? 
+    LineClearType lct;
+    // Is it a back-to-back clearing since the last one?
+    bool backToBack;
+    // did level increase as result of this?
+    bool levelUp;
 };
 
 class TetrisGame
@@ -66,14 +81,6 @@ public:
 
     // Gets current state of the game
     PlayState GetPlayState();
-
-    struct DropResult
-    {
-        int lineClearCount;
-        LineClearType lct;
-        bool backToBack;
-        bool levelUp;
-    };
 
     DropResult OnDrop();
 
@@ -116,44 +123,51 @@ public:
     // Lines
     void AddGarbageLines(int count);
 
+    TetrisEventHandlerComposite& GetEventHandler()
+    {
+        return m_handler;
+    }
+
 private:
-    int totalClearedLines = 0;
-    int level = 1;
-    ScoreKeeper scoreKeeper;
-    Randomizer randomizer;
-    RotateResult lastRotateResult = { false, false, false };
+    enum
+    {
+        InitialGravityDelay = 500,
+        LockDelay = 500,
+        LevelUpStep = 10,
+        RepeatDelay = 220,
+        MoveDelay = 30,
+    };
 
-    TetriminoType hold = TetriminoType::TT_End;
-    int holdChance = 1;
-    int combo = 0;
-    bool backToBackChance;
-
-    Tetrimino tmActive = { 0,0,TT_End,O_End};
-    const unsigned int initialGravityDelay = 500;
-    const unsigned int LockDelay = 500;
-    const unsigned int LevelUpStep = 10;
-    const unsigned int RepeatDelay = 220;
-    const unsigned int MoveDelay = 30;
-    unsigned int repeatDelayTick = 0;
-    unsigned int softDropDelay = 50;
-    unsigned int softDropDelayTick = 0;
-    unsigned int gravityDelay = 500;
-    unsigned int moveDelayTick = 0;
-    unsigned int consecutiveMoveCount = 0;
-    unsigned int gravityTick = 0;
-    unsigned int lockDelayTick = 0;
-    int lastShift = 0;
-
-    PlayState playState = PS_Ready;
-    PlayField playField;
-
-    bool gravity = true;
+    PlayField m_playField;
+    Tetrimino m_activeTetrimino;
+    ScoreKeeper m_scoreKeeper;
+    Randomizer m_randomizer;
+    PlayState m_playState;
+    RotateResult m_lastRotateResult;
+    int m_totalClearedLines;
+    int m_level;
+    TetriminoType m_hold;
+    int m_holdChance;
+    int m_combo;
+    bool m_backToBackChance;
+    unsigned int m_repeatDelayTick;
+    unsigned int m_softDropDelay;
+    unsigned int m_softDropDelayTick;
+    unsigned int m_gravityDelay;
+    unsigned int m_moveDelayTick;
+    unsigned int m_consecutiveMoveCount;
+    unsigned int m_gravityTick;
+    unsigned int m_lockDelayTick;
+    int m_lastShift;
+    bool m_gravity;
+    TetrisEventHandlerComposite m_handler;
 
     PlayState LockAndSelectState(Tetrimino& tm);
 
     Tetrimino SpawnNext(Randomizer& randomizer);
 
     RotateResult RotateTetrimino(Tetrimino& tm, bool clockwise);
+
 };
 
 #endif

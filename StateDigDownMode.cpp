@@ -35,14 +35,14 @@ void StateDigDownMode::OnUpdate()
     {
     case PS_Dropped:
     {
-        DoDrop();
+        DoDrop(m_tetrisGame);
         break;
     }
     case PS_Control:
     {
         m_tetrisGame.OnControl();
 
-        DoShift();
+        DoShift(m_tetrisGame);
         break;
     }
     }

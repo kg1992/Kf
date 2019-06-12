@@ -8,7 +8,6 @@ StateOnePlayer::StateOnePlayer(TetrisRenderer& tetrisRenderer)
     , m_uiReady("", ColorDarkBrown, ColorDarkYellow)
     , m_uiGameOver("", ColorDarkBrown, ColorDarkYellow)
 {
-
 }
 
 void StateOnePlayer::OnStart()
@@ -16,7 +15,14 @@ void StateOnePlayer::OnStart()
     m_uiReady.SetContent(Application::GetString(StringTable::SI_Ready));
     m_uiGameOver.SetContent(Application::GetString(StringTable::SI_GameOver));
 
-    m_tetrisRenderer.SetTetrisRenderDesc(MakeRenderDesc());
+
+    const int ClientHeight = Application::GetClientAreaHeight();
+    const int ClientWidth = Application::GetClientAreaWidth();
+    const int PxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 24.f));
+    const int PxX = (ClientWidth - m_tetrisGame.GetPlayField().GetWidth() * PxBlockSize) / 2;
+    const int PxY = 100;
+    
+    m_tetrisRenderer.SetTetrisRenderDesc(MakeRenderDesc(m_tetrisGame, PxX, PxY, PxBlockSize));
 }
 
 void StateOnePlayer::OnRender()
@@ -92,46 +98,3 @@ void StateOnePlayer::OnSdlEvent(const SDL_Event& e)
     }
 }
 
-TetrisRenderDesc StateOnePlayer::MakeRenderDesc()
-{
-    TetrisRenderDesc desc = { 0 };
-    const int ClientHeight = Application::GetClientAreaHeight();
-    const int ClientWidth = Application::GetClientAreaWidth();
-    const int PxBlockSize = static_cast<int>(std::round(Application::GetClientAreaHeight() / 600.f * 24.f));
-    const int PxPlayFIeldWidth = m_tetrisGame.GetPlayField().GetWidth() * PxBlockSize;
-    const int NextCount = 5;
-
-    desc.pxBlockSize = PxBlockSize;
-    desc.pxPlayFieldX = (ClientWidth - PxPlayFIeldWidth) / 2;
-    desc.pxPlayFieldY = 100;
-    desc.pxHoldX = desc.pxPlayFieldX - PxBlockSize * 5;
-    desc.pxHoldY = desc.pxPlayFieldY;
-    desc.nextCount = NextCount;
-    for (int i = 0; i < NextCount; ++i)
-    {
-        desc.pxNextX[i] = desc.pxPlayFieldX + desc.pxBlockSize * 11;
-        desc.pxNextY[i] = desc.pxPlayFieldY + i * desc.pxBlockSize * 4;
-    }
-
-    desc.visibleLines = 20;
-    return desc;
-}
-
-void StateOnePlayer::DoShift()
-{
-    int dx = 0;
-    if (Application::state[SDL_SCANCODE_DOWN]) m_tetrisGame.SoftDrop();
-    if (Application::state[SDL_SCANCODE_RIGHT]) dx += 1;
-    if (Application::state[SDL_SCANCODE_LEFT]) dx += -1;
-    m_tetrisGame.Shift(dx);
-}
-
-TetrisGame::DropResult StateOnePlayer::DoDrop()
-{
-    auto result = m_tetrisGame.OnDrop();
-    if (result.lineClearCount != 0)
-    {
-        Mix_PlayChannel(-1, g_pWavExplosion, 0);
-    }
-    return result;
-}
